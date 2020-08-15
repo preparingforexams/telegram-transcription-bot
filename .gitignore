@@ -1,0 +1,12 @@
+.venv/
+venv/
+.idea/
+*.iml
+
+*_cache/
+__pycache__
+test_api_ninjas.py
+
+.env
+
+usages.db
