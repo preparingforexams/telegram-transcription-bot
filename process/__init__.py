@@ -99,9 +99,17 @@ def _transcribe(filename):
         status = result['RecognitionStatus']
 
         if status == "Success":
-            return result["DisplayText"]
+            text: str = result["DisplayText"]
+            if text.strip():
+                return text
+            else:
+                return "Ich habe leider nichts verstanden."
+        elif status == "BabbleTimeout":
+            return "Das waren leider nur Geräusche."
+        elif status == "InitialSilenceTimeout":
+            return "Sprich lauter, da war nichts zu hören."
         elif status == "NoMatch":
-            return "Das habe ich leider nicht verstanden."
+            return "Ich verstehe leider nur Deutsch."
         else:
             logging.error(f"Unsuccessful transcription: {status}")
             raise ValueError()
