@@ -33,6 +33,7 @@ def main(msg: func.QueueMessage) -> None:
     message = {
         'chat_id': message['chat']['id'],
         'reply_to_message_id': message['message_id'],
+        'disable_notification': true,
         'text': transcribed
     }
     requests.post(_request_url("sendMessage"), data=message)

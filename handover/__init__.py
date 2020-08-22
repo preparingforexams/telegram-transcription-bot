@@ -29,6 +29,7 @@ def main(req: func.HttpRequest, msg: func.Out[func.QueueMessage]) -> func.HttpRe
             'method': 'sendMessage',
             'chat_id': chat_id,
             'reply_to_message_id': message_id,
+            'disable_notification': true,
             'text': "Sorry, ich bearbeite nur Sprachnachrichten bis zu 10 Minuten Länge."
         })
 
