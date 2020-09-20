@@ -1,12 +1,18 @@
+import time
+import json
 import subprocess
 import requests
 import logging
 
+import azure.cognitiveservices.speech as speechsdk
 import azure.functions as func
 import os
 _speech_key = os.getenv("SPEECH_KEY")
 _speech_region = "westeurope"
 _bot_token = os.getenv("TELEGRAM_TOKEN")
+
+_speech_config = speechsdk.SpeechConfig(
+    subscription=_speech_key, region=_speech_region)
 
 
 def main(msg: func.QueueMessage) -> None:
@@ -18,10 +24,10 @@ def main(msg: func.QueueMessage) -> None:
         logging.info("Downloading file")
         in_filename = _download_file(message)
 
-        logging.info("Skipping conversion.")
-        out_filename = in_filename
-        #logging.info("Converting file")
-        #out_filename = _convert_file(in_filename)
+        #logging.info("Skipping conversion.")
+        #out_filename = in_filename
+        logging.info("Converting file")
+        out_filename = _convert_file(in_filename)
 
         logging.info("Transcribing file")
         transcribed = _transcribe(out_filename)
@@ -87,33 +93,36 @@ def _get_speech_token() -> str:
 
 
 def _transcribe(filename):
-    token = _get_speech_token()
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'audio/wave',
-        'Accept': 'application/json'
-    }
-    with open(filename, "rb") as payload:
-        response = requests.request(
-            "POST", _build_speech_url("de-DE"), headers=headers, data=payload)
-        result = response.json()
-        status = result['RecognitionStatus']
+    recognizer = speechsdk.SpeechRecognizer(
+        speech_config=_speech_config,
+        audio_config=speechsdk.AudioConfig(filename=filename),
+        auto_detect_source_language_config=speechsdk.languageconfig.AutoDetectSourceLanguageConfig(languages=['en-US', 'de-DE']))
 
-        if status == "Success":
-            text: str = result["DisplayText"]
-            if text.strip():
-                return text
-            else:
-                return "Ich habe leider nichts verstanden."
-        elif status == "BabbleTimeout":
-            return "Das waren leider nur Geräusche."
-        elif status == "InitialSilenceTimeout":
-            return "Sprich lauter, da war nichts zu hören."
-        elif status == "NoMatch":
-            return "Ich verstehe leider nur Deutsch."
-        else:
-            logging.error(f"Unsuccessful transcription: {status}")
-            raise ValueError()
+    result_text = ""
+
+    def on_recognized(evt):
+        nonlocal result_text
+        if result_text:
+            result_text += " "
+        result_text += evt.result.text
+    recognizer.recognized.connect(on_recognized)
+
+    done = False
+
+    def on_stop(evt):
+        nonlocal done
+        recognizer.stop_continuous_recognition()
+        done = True
+    recognizer.speech_end_detected.connect(on_stop)
+
+    try:
+        recognizer.start_continuous_recognition()
+        while not done:
+            time.sleep(.5)
+        return result_text or "Ich habe leider nichts verstanden."
+    except BaseException as e:
+        logging.error(str(e), exc_info=e)
+        return "Es ist ein Fehler aufgetreten."
 
 
 def _build_speech_url(language: str) -> str:
