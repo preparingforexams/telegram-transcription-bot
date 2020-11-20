@@ -12,7 +12,10 @@ _speech_region = "westeurope"
 _bot_token = os.getenv("TELEGRAM_TOKEN")
 
 _speech_config = speechsdk.SpeechConfig(
-    subscription=_speech_key, region=_speech_region)
+    subscription=_speech_key,
+    region=_speech_region)
+
+_speech_config.set_profanity(speechsdk.ProfanityOption.Raw)
 
 
 def main(msg: func.QueueMessage) -> None:
