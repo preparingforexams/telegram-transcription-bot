@@ -1,11 +1,12 @@
-import time
-import subprocess
-import requests
 import logging
+import os
+import subprocess
+import time
 
 import azure.cognitiveservices.speech as speechsdk
 import azure.functions as func
-import os
+import requests
+
 _speech_key = os.getenv("SPEECH_KEY")
 _speech_region = "westeurope"
 _bot_token = os.getenv("TELEGRAM_TOKEN")
@@ -26,8 +27,8 @@ def main(msg: func.QueueMessage) -> None:
         logging.info("Downloading file")
         in_filename = _download_file(message)
 
-        #logging.info("Skipping conversion.")
-        #out_filename = in_filename
+        # logging.info("Skipping conversion.")
+        # out_filename = in_filename
         logging.info("Converting file")
         out_filename = _convert_file(in_filename)
 
@@ -38,13 +39,51 @@ def main(msg: func.QueueMessage) -> None:
         return
 
     logging.info("Sending message")
-    message = {
-        'chat_id': message['chat']['id'],
-        'reply_to_message_id': message['message_id'],
+    _send_messages(transcribed, message['chat']['id'], message['message_id'])
+
+
+def _create_message(text, chat_id, message_id) -> dict:
+    return {
+        'chat_id': chat_id,
+        'reply_to_message_id': message_id,
         'disable_notification': True,
-        'text': transcribed
+        'text': text
     }
-    requests.post(_request_url("sendMessage"), data=message)
+
+
+def _split_chunks(text: str, length=4000) -> list:
+    chunks = []
+    remaining = text
+    while remaining:
+        if len(remaining) <= length:
+            chunks.append(remaining)
+            break
+
+        end_index = length
+        while not remaining[end_index - 1].isspace():
+            end_index -= 1
+        chunks.append(remaining[:end_index])
+        remaining = remaining[end_index:]
+
+    result = []
+    chunk_count = len(chunks)
+    for index, chunk in enumerate(chunks):
+        result.append(f"[{index}/{chunk_count}] {chunk}")
+
+    return result
+
+
+def _send_messages(text: str, chat_id, message_id):
+    messages = []
+    if len(text) <= 4096:
+        messages.append(_create_message(text, chat_id, message_id))
+    else:
+        chunks = _split_chunks(text)
+        for chunk in chunks:
+            messages.append(_create_message(chunk, chat_id, message_id))
+
+    for message in messages:
+        requests.post(_request_url("sendMessage"), data=message)
 
 
 def _download_file(message: dict) -> str:
@@ -98,7 +137,8 @@ def _transcribe(filename):
     recognizer = speechsdk.SpeechRecognizer(
         speech_config=_speech_config,
         audio_config=speechsdk.AudioConfig(filename=filename),
-        auto_detect_source_language_config=speechsdk.languageconfig.AutoDetectSourceLanguageConfig(languages=['en-US', 'de-DE']))
+        auto_detect_source_language_config=speechsdk.languageconfig.AutoDetectSourceLanguageConfig(
+            languages=['en-US', 'de-DE']))
 
     result_text = ""
 
@@ -107,6 +147,7 @@ def _transcribe(filename):
         if result_text:
             result_text += " "
         result_text += evt.result.text
+
     recognizer.recognized.connect(on_recognized)
 
     done = False
@@ -115,6 +156,7 @@ def _transcribe(filename):
         nonlocal done
         recognizer.stop_continuous_recognition()
         done = True
+
     recognizer.speech_end_detected.connect(on_stop)
 
     try:
