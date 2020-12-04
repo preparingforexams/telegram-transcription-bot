@@ -68,7 +68,7 @@ def _split_chunks(text: str, length=4000) -> list:
     result = []
     chunk_count = len(chunks)
     for index, chunk in enumerate(chunks):
-        result.append(f"[{index}/{chunk_count}] {chunk}")
+        result.append(f"[{index + 1}/{chunk_count}] {chunk}")
 
     return result
 
@@ -78,7 +78,9 @@ def _send_messages(text: str, chat_id, message_id):
     if len(text) <= 4096:
         messages.append(_create_message(text, chat_id, message_id))
     else:
+        logging.info("Splitting message into chunks")
         chunks = _split_chunks(text)
+        logging.info(f"Got chunks of sizes {[len(c) for c in chunks]} for text of length {len(text)}")
         for chunk in chunks:
             messages.append(_create_message(chunk, chat_id, message_id))
 
