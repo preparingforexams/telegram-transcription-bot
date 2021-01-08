@@ -80,7 +80,8 @@ def _send_messages(text: str, chat_id, message_id):
     else:
         logging.info("Splitting message into chunks")
         chunks = _split_chunks(text)
-        logging.info(f"Got chunks of sizes {[len(c) for c in chunks]} for text of length {len(text)}")
+        logging.info(
+            f"Got chunks of sizes {[len(c) for c in chunks]} for text of length {len(text)}")
         for chunk in chunks:
             messages.append(_create_message(chunk, chat_id, message_id))
 
@@ -88,9 +89,17 @@ def _send_messages(text: str, chat_id, message_id):
         requests.post(_request_url("sendMessage"), data=message)
 
 
+def _get_any_supported(message: dict) -> dict:
+    result = message.get('voice') or message.get(
+        'audio') or message.get('video_note')
+    if not result:
+        raise KeyError("No supported message type found")
+    return result
+
+
 def _download_file(message: dict) -> str:
     try:
-        audio = message['voice']
+        audio = _get_any_supported(message)
         file_id = audio['file_id']
         return _download_telegram_file(file_id)
 
