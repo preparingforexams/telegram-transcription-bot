@@ -23,7 +23,7 @@ def main(req: func.HttpRequest, msg: func.Out[func.QueueMessage]) -> func.HttpRe
         logging.debug(f"Unhandleable update: {update}")
         return _build_response("")
 
-    if size > (MAX_MINUTES * 60):
+    if size > _MAX_FILE_SIZE_BYTES:
         return _build_response({
             'method': 'sendMessage',
             'chat_id': chat_id,
