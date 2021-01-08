@@ -5,6 +5,7 @@ import azure.functions as func
 
 
 MAX_MINUTES = 10
+_MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
 
 
 def main(req: func.HttpRequest, msg: func.Out[func.QueueMessage]) -> func.HttpResponse:
@@ -16,19 +17,19 @@ def main(req: func.HttpRequest, msg: func.Out[func.QueueMessage]) -> func.HttpRe
         message_id = message['message_id']
         chat_id = message['chat']['id']
 
-        audio = message['voice']
-        duration = int(audio['duration'])
+        audio = _get_any_supported(message)
+        size = int(audio['file_size'])
     except KeyError:
         logging.debug(f"Unhandleable update: {update}")
         return _build_response("")
 
-    if duration > (MAX_MINUTES * 60):
+    if size > (MAX_MINUTES * 60):
         return _build_response({
             'method': 'sendMessage',
             'chat_id': chat_id,
             'reply_to_message_id': message_id,
             'disable_notification': True,
-            'text': "Sorry, ich bearbeite nur Sprachnachrichten bis zu 10 Minuten Länge."
+            'text': "Sorry, ich bearbeite nur Dateien bis zu 20 MB"
         })
 
     logging.info("Adding message to queue")
@@ -36,6 +37,11 @@ def main(req: func.HttpRequest, msg: func.Out[func.QueueMessage]) -> func.HttpRe
 
     return _build_response("")
 
+
+def _get_any_supported(message: dict) -> dict:
+    result = message.get('voice') or message.get('audio') or message.get('video_note')
+    if not result:
+        raise KeyError("No supported message type found")
 
 def _build_response(data) -> func.HttpResponse:
     return func.HttpResponse(json.dumps(data), mimetype='application/json')
