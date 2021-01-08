@@ -42,6 +42,7 @@ def _get_any_supported(message: dict) -> dict:
     result = message.get('voice') or message.get('audio') or message.get('video_note')
     if not result:
         raise KeyError("No supported message type found")
+    return result
 
 def _build_response(data) -> func.HttpResponse:
     return func.HttpResponse(json.dumps(data), mimetype='application/json')
