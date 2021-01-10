@@ -8,7 +8,7 @@ import azure.functions as func
 import requests
 
 _speech_key = os.getenv("SPEECH_KEY")
-_speech_region = "westeurope"
+_speech_region = os.getenv("AZURE_REGION")
 _bot_token = os.getenv("TELEGRAM_TOKEN")
 
 _speech_config = speechsdk.SpeechConfig(
