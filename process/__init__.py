@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import time
+from typing import Optional
 
 import azure.cognitiveservices.speech as speechsdk
 import azure.functions as func
@@ -13,7 +14,8 @@ _bot_token = os.getenv("TELEGRAM_TOKEN")
 
 _speech_config = speechsdk.SpeechConfig(
     subscription=_speech_key,
-    region=_speech_region)
+    region=_speech_region,
+)
 
 _speech_config.set_profanity(speechsdk.ProfanityOption.Raw)
 
@@ -22,10 +24,18 @@ def main(msg: func.QueueMessage) -> None:
     logging.info('Python queue trigger function processed a queue item: %s',
                  msg.get_body().decode('utf-8'))
     message = msg.get_json()
+    supported_key = _get_supported_key(message)
 
+    if not supported_key:
+        return
+
+    chat_id = message['chat']['id']
+    message_id = message['message_id']
+
+    data = message[supported_key]
     try:
         logging.info("Downloading file")
-        in_filename = _download_file(message)
+        in_filename = _download_file(data)
 
         # logging.info("Skipping conversion.")
         # out_filename = in_filename
@@ -37,9 +47,19 @@ def main(msg: func.QueueMessage) -> None:
     except ValueError as e:
         logging.error("Unknown error", exc_info=e)
         return
+    except IOError as e:
+        logging.error("IO error during transcription", exc_info=e)
+        _send_messages("Fehler bei der Verarbeitung der Nachricht.", chat_id, message_id)
+        return
+
+    if not transcribed:
+        logging.info("No transcription result")
+        if supported_key == 'voice':
+            _send_messages('Ich habe leider nichts verstanden.', chat_id, message_id)
+        return
 
     logging.info("Sending message")
-    _send_messages(transcribed, message['chat']['id'], message['message_id'])
+    _send_messages(transcribed, chat_id, message_id)
 
 
 def _create_message(text, chat_id, message_id) -> dict:
@@ -89,20 +109,17 @@ def _send_messages(text: str, chat_id, message_id):
         requests.post(_request_url("sendMessage"), data=message)
 
 
-def _get_any_supported(message: dict) -> dict:
-    result = message.get('voice') or message.get(
-        'audio') or message.get('video_note')
-    if not result:
-        raise KeyError("No supported message type found")
-    return result
+def _get_supported_key(message: dict) -> Optional[str]:
+    for key in ['voice', 'audio', 'video_note']:
+        if key in message:
+            return key
 
 
-def _download_file(message: dict) -> str:
+def _download_file(data: dict) -> str:
     try:
-        audio = _get_any_supported(message)
+        audio = data
         file_id = audio['file_id']
         return _download_telegram_file(file_id)
-
     except KeyError as e:
         logging.error(f"KeyError", exc_info=e)
         return
@@ -144,12 +161,14 @@ def _get_speech_token() -> str:
     return str(response.text)
 
 
-def _transcribe(filename):
+def _transcribe(filename) -> Optional[str]:
     recognizer = speechsdk.SpeechRecognizer(
         speech_config=_speech_config,
         audio_config=speechsdk.AudioConfig(filename=filename),
         auto_detect_source_language_config=speechsdk.languageconfig.AutoDetectSourceLanguageConfig(
-            languages=['en-US', 'de-DE']))
+            languages=['en-US', 'de-DE'],
+        ),
+    )
 
     result_text = ""
 
@@ -174,10 +193,9 @@ def _transcribe(filename):
         recognizer.start_continuous_recognition()
         while not done:
             time.sleep(.5)
-        return result_text or "Ich habe leider nichts verstanden."
+        return result_text or None
     except BaseException as e:
-        logging.error(str(e), exc_info=e)
-        return "Es ist ein Fehler aufgetreten."
+        raise IOError from e
 
 
 def _build_speech_url(language: str) -> str:
