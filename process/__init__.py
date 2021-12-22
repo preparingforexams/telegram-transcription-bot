@@ -37,6 +37,9 @@ def main(msg: func.QueueMessage) -> None:
         logging.info("Downloading file")
         in_filename = _download_file(data)
 
+        if not in_filename:
+            return
+
         # logging.info("Skipping conversion.")
         # out_filename = in_filename
         logging.info("Converting file")
@@ -115,17 +118,17 @@ def _get_supported_key(message: dict) -> Optional[str]:
             return key
 
 
-def _download_file(data: dict) -> str:
+def _download_file(data: dict) -> Optional[str]:
     try:
         audio = data
         file_id = audio['file_id']
         return _download_telegram_file(file_id)
     except KeyError as e:
-        logging.error(f"KeyError", exc_info=e)
-        return
+        logging.error("KeyError during telegram download", exc_info=e)
+        return None
     except BaseException as e:
-        logging.error(f"Unknown error", exc_info=e)
-        return
+        logging.error(f"Unknown error during telegram download", exc_info=e)
+        return None
 
 
 def _download_telegram_file(file_id: str) -> str:
