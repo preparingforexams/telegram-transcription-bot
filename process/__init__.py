@@ -29,6 +29,22 @@ def _setup_sentry():
     )
 
 
+def _easter_eggs(s: str) -> str:
+    result = []
+    for part in s.split(" "):
+        if part in {
+            "VAGINA",
+            "VULVA",
+            "VENUSHÜGEL",
+            "ABCDEFG",
+        }:
+            result.append("vegan")
+        else:
+            result.append(part)
+
+    return " ".join(result)
+
+
 def main(msg: func.QueueMessage) -> None:
     _setup_sentry()
 
@@ -71,6 +87,8 @@ def main(msg: func.QueueMessage) -> None:
         if supported_key == 'voice':
             _send_messages('Ich habe leider nichts verstanden.', chat_id, message_id)
         return
+
+    transcribed = _easter_eggs(transcribed)
 
     logging.info("Sending message")
     _send_messages(transcribed, chat_id, message_id)
