@@ -198,9 +198,5 @@ def _transcribe(filename) -> Optional[str]:
         raise IOError from e
 
 
-def _build_speech_url(language: str) -> str:
-    return f"https://{_speech_region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language={language}&format=simple&profanity=raw"
-
-
 def _request_url(method: str):
     return f"https://api.telegram.org/bot{_bot_token}/{method}"
