@@ -2,13 +2,22 @@ import json
 import logging
 
 import azure.functions as func
-
+import sentry_sdk
 
 MAX_MINUTES = 10
 _MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
 
 
+def _setup_sentry():
+    sentry_sdk.init(
+        dsn="https://7adb9f2113bb409c978f99c6bb4eeaa6@o85632.ingest.sentry.io/6117803",
+        server_name="handover",
+        traces_sample_rate=1.0,
+    )
+
+
 def main(req: func.HttpRequest, msg: func.Out[func.QueueMessage]) -> func.HttpResponse:
+    _setup_sentry()
     logging.info('Python HTTP trigger function processed a request.')
 
     update = req.get_json()
@@ -43,6 +52,7 @@ def _get_any_supported(message: dict) -> dict:
     if not result:
         raise KeyError("No supported message type found")
     return result
+
 
 def _build_response(data) -> func.HttpResponse:
     return func.HttpResponse(json.dumps(data), mimetype='application/json')

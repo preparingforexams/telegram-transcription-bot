@@ -7,6 +7,7 @@ from typing import Optional
 import azure.cognitiveservices.speech as speechsdk
 import azure.functions as func
 import requests
+import sentry_sdk
 
 _speech_key = os.getenv("SPEECH_KEY")
 _speech_region = os.getenv("AZURE_REGION")
@@ -20,7 +21,17 @@ _speech_config = speechsdk.SpeechConfig(
 _speech_config.set_profanity(speechsdk.ProfanityOption.Raw)
 
 
+def _setup_sentry():
+    sentry_sdk.init(
+        dsn="https://7adb9f2113bb409c978f99c6bb4eeaa6@o85632.ingest.sentry.io/6117803",
+        server_name="process",
+        traces_sample_rate=1.0,
+    )
+
+
 def main(msg: func.QueueMessage) -> None:
+    _setup_sentry()
+
     logging.info('Python queue trigger function processed a queue item: %s',
                  msg.get_body().decode('utf-8'))
     message = msg.get_json()
