@@ -3,7 +3,7 @@ on: [ push ]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v2
