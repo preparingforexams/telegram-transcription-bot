@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import subprocess
 import time
 from typing import Optional
@@ -31,7 +32,7 @@ def _setup_sentry():
 
 def _easter_eggs(s: str) -> str:
     result = []
-    for part in s.split(" "):
+    for part in re.split(r"([^\w]+)", s):
         if part in {
             "VAGINA",
             "VULVA",
@@ -42,7 +43,7 @@ def _easter_eggs(s: str) -> str:
         else:
             result.append(part)
 
-    return " ".join(result)
+    return "".join(result)
 
 
 def main(msg: func.QueueMessage) -> None:
