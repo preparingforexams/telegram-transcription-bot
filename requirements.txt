@@ -1,4 +1,4 @@
 azure-functions==1.8.0
 azure-cognitiveservices-speech==1.19.0
-requests==2.26.0
+requests==2.27.1
 sentry_sdk==1.5.1
