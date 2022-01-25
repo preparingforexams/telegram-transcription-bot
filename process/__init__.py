@@ -81,7 +81,7 @@ def main(msg: func.QueueMessage) -> None:
         def _send_typing_action():
             while is_typing:
                 _send_chat_action(chat_id, 'typing')
-                time.sleep(5.5)
+                time.sleep(2)
 
         Thread(target=_send_typing_action, daemon=True).start()
 
