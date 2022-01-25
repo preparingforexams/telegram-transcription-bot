@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import time
+from threading import Thread
 from typing import Optional
 
 import azure.cognitiveservices.speech as speechsdk
@@ -62,6 +63,8 @@ def main(msg: func.QueueMessage) -> None:
 
     data = message[supported_key]
     try:
+        _send_chat_action(chat_id, 'record_voice')
+
         logging.info("Downloading file")
         in_filename = _download_file(data)
 
@@ -73,8 +76,19 @@ def main(msg: func.QueueMessage) -> None:
         logging.info("Converting file")
         out_filename = _convert_file(in_filename)
 
+        is_typing = True
+
+        def _send_typing_action():
+            while is_typing:
+                _send_chat_action(chat_id, 'typing')
+                time.sleep(5.5)
+
+        Thread(target=_send_typing_action, daemon=True).start()
+
         logging.info("Transcribing file")
         transcribed = _transcribe(out_filename)
+
+        is_typing = False
     except ValueError as e:
         logging.error("Unknown error", exc_info=e)
         return
@@ -139,7 +153,17 @@ def _send_messages(text: str, chat_id, message_id):
             messages.append(_create_message(chunk, chat_id, message_id))
 
     for message in messages:
-        requests.post(_request_url("sendMessage"), data=message)
+        # TODO: check response
+        requests.post(_request_url("sendMessage"), data=message, timeout=10)
+
+
+def _send_chat_action(chat_id: int, action: str):
+    response = requests.post(
+        _request_url("sendChatAction"),
+        data=dict(chat_id=chat_id, action=action),
+        timeout=10,
+    )
+    response.raise_for_status()
 
 
 def _get_supported_key(message: dict) -> Optional[str]:
@@ -163,10 +187,10 @@ def _download_file(data: dict) -> Optional[str]:
 
 def _download_telegram_file(file_id: str) -> str:
     url = _request_url("getFile")
-    response = requests.post(url, data={'file_id': file_id}).json()
+    response = requests.post(url, data={'file_id': file_id}, timeout=10).json()
     file_path = response['result']['file_path']
     download_url = f'https://api.telegram.org/file/bot{_bot_token}/{file_path}'
-    file_bytes = requests.get(download_url).content
+    file_bytes = requests.get(download_url, timeout=60).content
     path = f'/tmp/{file_id}'
     with open(path, 'wb') as f:
         f.write(file_bytes)
@@ -190,7 +214,7 @@ def _get_speech_token() -> str:
     headers = {
         'Ocp-Apim-Subscription-Key': _speech_key
     }
-    response = requests.post(fetch_token_url, headers=headers)
+    response = requests.post(fetch_token_url, headers=headers, timeout=10)
     return str(response.text)
 
 
