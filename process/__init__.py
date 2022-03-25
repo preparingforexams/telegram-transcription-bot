@@ -204,7 +204,7 @@ def _convert_file(in_filename) -> str:
     logging.info(f"Converted with code: {return_code}")
 
     if return_code != 0:
-        raise ValueError()
+        raise ValueError(f"Got unexpected return code {return_code} from ffmpeg")
 
     return out_filename
 
