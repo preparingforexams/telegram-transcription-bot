@@ -153,7 +153,6 @@ def _send_messages(text: str, chat_id, message_id):
             messages.append(_create_message(chunk, chat_id, message_id))
 
     for message in messages:
-        # TODO: check response
         response = requests.post(_request_url("sendMessage"), data=message, timeout=10)
         if response.status_code >= 400:
             logging.error("Unsuccessful response from Telegram: %d", response.status_code)
