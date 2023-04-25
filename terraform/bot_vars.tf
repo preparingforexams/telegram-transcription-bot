@@ -1,5 +1,6 @@
 variable "bot_name" {
-  type = string
+  type    = string
+  default = "trazurebot-us"
 }
 
 variable "telegram_token" {

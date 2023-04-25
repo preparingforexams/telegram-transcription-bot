@@ -1,9 +1,14 @@
 terraform {
-  backend "remote" {
-    hostname = "app.terraform.io"
+  backend "s3" {
+    bucket = "legacy-terraform-states"
+    region = "eu-central-1"
+    key    = "trazurebot"
+  }
 
-    workspaces {
-      name = "trazurebot"
+  required_providers {
+    telegram = {
+      source  = "yi-jiayu/telegram"
+      version = "0.3.1"
     }
   }
 }
