@@ -91,7 +91,7 @@ class Bot:
                 _LOG.info("[%s] No transcription result", update_id)
                 if isinstance(file, Voice):
                     await message.reply_text(
-                        "Ich habe leider nichts verstanden",
+                        "Ich habe leider nichts verstanden.",
                         disable_notification=True,
                     )
                 return
