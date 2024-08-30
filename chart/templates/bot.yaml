@@ -22,16 +22,10 @@ spec:
       labels:
         app: bot
     spec:
-      volumes:
-        - name: secrets
-          secret:
-            secretName: secrets
       containers:
         - name: app
           image: {{ .Values.image.app }}:{{ .Values.appVersion }}
           envFrom:
-            - configMapRef:
-                name: config
             - secretRef:
                 name: secrets
           resources:
@@ -39,4 +33,4 @@ spec:
               cpu: 50m
               memory: 128Mi
             limits:
-              cpu: 200m
+              cpu: "1"
