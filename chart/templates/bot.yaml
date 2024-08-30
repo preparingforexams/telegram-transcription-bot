@@ -24,7 +24,6 @@ spec:
     spec:
       terminationGracePeriodSeconds: 120
       securityContext:
-        runAsNonRoot: true
         fsGroup: 500
       volumes:
         - name: scratch
