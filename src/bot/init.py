@@ -3,7 +3,7 @@ import logging
 import sentry_sdk
 from bs_config import Env
 
-from bot.config import SentryConfig, Config
+from bot.config import Config, SentryConfig
 
 _LOG = logging.getLogger(__name__)
 

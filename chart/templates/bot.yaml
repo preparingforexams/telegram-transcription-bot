@@ -22,12 +22,26 @@ spec:
       labels:
         app: bot
     spec:
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: 500
+      volumes:
+        - name: scratch
+          emptyDir:
+            sizeLimit: "8Gi"
       containers:
         - name: app
           image: {{ .Values.image.app }}:{{ .Values.appVersion }}
           envFrom:
             - secretRef:
                 name: secrets
+          env:
+            - name: SCRATCH_DIR
+              value: /scratch
+          volumeMounts:
+            - mountPath: /scratch
+              name: scratch
           resources:
             requests:
               cpu: 50m

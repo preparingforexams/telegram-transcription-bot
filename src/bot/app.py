@@ -1,7 +1,6 @@
-import asyncio
-
 import click
 
+from bot.bot import Bot
 from bot.config import Config
 from bot.init import initialize
 
@@ -15,7 +14,9 @@ def main(context: click.Context) -> None:
 @main.command
 @click.pass_obj
 def handle_updates(config: Config) -> None:
-    asyncio.run(TelegramUpdateRouter(app).run())
+    bot = Bot(config)
+    bot.run()
+
 
 if __name__ == "__main__":
     main()
