@@ -68,9 +68,7 @@ class Bot:
         if file_size > FileSizeLimit.FILESIZE_DOWNLOAD:
             _LOG.info("[%s] File size exceeds limit", update_id)
             await message.reply_text(
-                reply_to_message_id=message.message_id,
                 disable_notification=True,
-                allow_sending_without_reply=True,
                 text="Sorry, ich bearbeite nur Dateien bis zu 20 MB",
             )
             return
@@ -111,7 +109,6 @@ class Bot:
                 await message.reply_text(
                     text=chunk,
                     disable_notification=True,
-                    allow_sending_without_reply=True,
                 )
 
     async def _download_file(
