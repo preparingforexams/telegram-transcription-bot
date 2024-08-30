@@ -1,24 +1,44 @@
-on: [ push ]
+name: Main
+on:
+  push:
+    branches: [ main ]
+  pull_request: { }
 
 jobs:
-  build-and-deploy:
+  validate-renovate-config:
+    uses: BlindfoldedSurgery/renovate-config/.github/workflows/validate.yml@main
+
+  lint:
+    uses: BlindfoldedSurgery/actions-python/.github/workflows/lint.yml@v2
+    with:
+      python-version: '3.12'
+
+  test:
+    uses: BlindfoldedSurgery/actions-python/.github/workflows/test.yml@v2
+    with:
+      python-version: '3.12'
+
+  build-container-image:
+    needs:
+      - lint
+      - test
+    uses: BjoernPetersen/actions-container/.github/workflows/build-image-kaniko.yml@v3
+    with:
+      runner-name-build: warp-ubuntu-latest-arm64-2x
+      push-image: ${{ github.ref_name == github.event.repository.default_branch }}
+
+  deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref_name == github.event.repository.default_branch
+    needs:
+      - build-container-image
     steps:
-      - name: 'Checkout GitHub Action'
-        uses: actions/checkout@v4
-
-      - name: Setup Python Environment
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
         with:
-          python-version: 3.9
+          fetch-depth: 0
+      - run: git push origin main:release
 
-      - name: 'Resolve Project Dependencies Using Pip'
-        shell: bash
-        run: pip install -r requirements.txt --target=".python_packages/lib/site-packages"
-      - name: 'Run Azure Functions Action'
-        uses: Azure/functions-action@v1
-        id: fa
-        with:
-          app-name: trazurebot-us
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+  clean:
+    concurrency: cleanup
+    needs: [ deploy ]
+    uses: BjoernPetersen/actions-container/.github/workflows/clean.yml@v3
