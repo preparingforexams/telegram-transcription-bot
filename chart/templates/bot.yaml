@@ -32,6 +32,8 @@ spec:
       containers:
         - name: app
           image: {{ .Values.image.app }}:{{ .Values.appVersion }}
+          args:
+            - handle-updates
           envFrom:
             - secretRef:
                 name: secrets
