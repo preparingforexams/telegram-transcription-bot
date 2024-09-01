@@ -1,7 +1,6 @@
 import logging
 import re
 import signal
-from idlelib.rpc import response_queue
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast
