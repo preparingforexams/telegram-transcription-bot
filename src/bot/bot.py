@@ -95,9 +95,13 @@ class Bot:
             if not result:
                 _LOG.info("[%s] No transcription result", update_id)
                 if isinstance(file, Voice):
-                    await message.reply_text(
+                    response = await message.reply_text(
                         "Ich habe leider nichts verstanden.",
                         disable_notification=True,
+                    )
+                    await self.usage_tracker.track(
+                        message,
+                        response_id=response.message_id,
                     )
                 return
 
@@ -110,11 +114,18 @@ class Bot:
                 len(result),
                 len(chunks),
             )
+            first_response_message: Message | None = None
             for chunk in chunks:
-                await message.reply_text(
+                message = await message.reply_text(
                     text=chunk,
                     disable_notification=True,
                 )
+                if first_response_message is None:
+                    first_response_message = message
+            await self.usage_tracker.track(
+                message,
+                response_id=first_response_message.message_id,  # type: ignore[union-attr]
+            )
 
     async def _download_file(
         self,

@@ -1,9 +1,11 @@
+import asyncio
 import logging
 from datetime import timezone
 
 from rate_limiter import RateLimiter
 from rate_limiter.policy import DailyLimitRateLimitingPolicy
 from rate_limiter.repo import PostgresRateLimitingRepo
+from telegram import Message
 
 from bot.config import DatabaseConfig
 
@@ -23,6 +25,24 @@ class UsageTracker:
                 max_connections=4,
             ),
             timezone=timezone.utc,
+        )
+
+    async def track(
+        self,
+        request: Message,
+        *,
+        response_id: int | None,
+    ) -> None:
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(
+            None,
+            lambda: self._rate_limiter.add_usage(
+                time=request.date,
+                context_id=request.message_id,
+                user_id=request.from_user.id,  # type: ignore[union-attr]
+                response_id=str(response_id),
+                reference_id=None,
+            ),
         )
 
     def close(self) -> None:
