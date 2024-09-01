@@ -5,13 +5,13 @@ from rate_limiter import RateLimiter
 from rate_limiter.policy import DailyLimitRateLimitingPolicy
 from rate_limiter.repo import PostgresRateLimitingRepo
 
-from bot.config import UsageConfig
+from bot.config import DatabaseConfig
 
 _LOG = logging.getLogger(__name__)
 
 
 class UsageTracker:
-    def __init__(self, config: UsageConfig) -> None:
+    def __init__(self, config: DatabaseConfig) -> None:
         self._rate_limiter = RateLimiter(
             policy=DailyLimitRateLimitingPolicy(limit=100),
             repo=PostgresRateLimitingRepo.connect(

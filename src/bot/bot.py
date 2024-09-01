@@ -22,7 +22,7 @@ class Bot:
         self.config = config
         self.converter = AudioConverter()
         self.transcriber = Transcriber(config.azure_tts)
-        self.usage_tracker = UsageTracker(config.usage)
+        self.usage_tracker = UsageTracker(config.database)
 
     def run(self) -> None:
         app = Application.builder().token(self.config.telegram.token).build()

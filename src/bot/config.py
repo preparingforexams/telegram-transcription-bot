@@ -48,7 +48,7 @@ class TelegramConfig:
 
 
 @dataclass
-class UsageConfig:
+class DatabaseConfig:
     db_host: str
     db_name: str
     db_user: str
@@ -57,20 +57,20 @@ class UsageConfig:
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
-            db_host=env.get_string("DB_HOST", required=True),
-            db_name=env.get_string("DB_NAME", required=True),
-            db_user=env.get_string("DB_USER", required=True),
-            db_password=env.get_string("DB_PASSWORD", required=True),
+            db_host=env.get_string("HOST", required=True),
+            db_name=env.get_string("NAME", required=True),
+            db_user=env.get_string("USER", required=True),
+            db_password=env.get_string("PASSWORD", required=True),
         )
 
 
 @dataclass
 class Config:
     azure_tts: AzureTtsConfig
+    database: DatabaseConfig
     scratch_dir: Path | None
     sentry: SentryConfig | None
     telegram: TelegramConfig
-    usage: UsageConfig
 
     @classmethod
     def from_env(cls, env: Env) -> Self:
@@ -82,8 +82,8 @@ class Config:
 
         return cls(
             azure_tts=AzureTtsConfig.from_env(env.scoped("AZURE_")),
+            database=DatabaseConfig.from_env(env.scoped("DB_")),
             scratch_dir=scratch_dir,
             sentry=SentryConfig.from_env(env),
             telegram=TelegramConfig.from_env(env.scoped("TELEGRAM_")),
-            usage=UsageConfig.from_env(env.scoped("USAGE_")),
         )
