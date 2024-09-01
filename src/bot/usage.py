@@ -39,10 +39,10 @@ class UsageTracker:
             None,
             lambda: self._rate_limiter.add_usage(
                 time=request.date,
-                context_id=request.message_id,
+                context_id="",
                 user_id=request.from_user.id,  # type: ignore[union-attr]
                 response_id=str(response_id),
-                reference_id=None,
+                reference_id=str(request.message_id),
             ),
         )
 
