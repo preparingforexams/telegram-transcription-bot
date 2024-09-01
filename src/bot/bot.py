@@ -102,6 +102,7 @@ class Bot:
                     await self.usage_tracker.track(
                         message,
                         response_id=response.message_id,
+                        unique_file_id=file.file_unique_id,
                     )
                 return
 
@@ -125,6 +126,7 @@ class Bot:
             await self.usage_tracker.track(
                 message,
                 response_id=first_response_message.message_id,  # type: ignore[union-attr]
+                unique_file_id=file.file_unique_id,
             )
 
     async def _download_file(

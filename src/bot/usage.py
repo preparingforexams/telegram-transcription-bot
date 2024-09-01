@@ -31,6 +31,7 @@ class UsageTracker:
         self,
         request: Message,
         *,
+        unique_file_id: str,
         response_id: int | None,
     ) -> None:
         _LOG.info("Tracking usage for message_id %d", request.message_id)
@@ -42,7 +43,7 @@ class UsageTracker:
                 context_id="",
                 user_id=request.from_user.id,  # type: ignore[union-attr]
                 response_id=str(response_id),
-                reference_id=str(request.message_id),
+                reference_id=unique_file_id,
             ),
         )
 
