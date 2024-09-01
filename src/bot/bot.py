@@ -165,7 +165,11 @@ class Bot:
                 original_audio_file
             )
 
-            _LOG.debug("[%s] Transcribing audio", update_id)
+            _LOG.debug(
+                "[%s] Transcribing audio with locale %s",
+                update_id,
+                locale,
+            )
             result = await self.transcriber.transcribe(
                 converted_audio_file, locale=locale
             )
