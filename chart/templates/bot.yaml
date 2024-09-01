@@ -32,9 +32,6 @@ spec:
       initContainers:
         - name: flyway
           image: {{ .Values.rateLimiter.image }}
-          volumeMounts:
-            - mountPath: /state
-              name: state
           envFrom:
             - configMapRef:
                 name: db-config
