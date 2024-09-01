@@ -78,6 +78,13 @@ class Bot:
             )
             return
 
+        if usage := self.usage_tracker.get_conflict(message.from_user.id, message.date):
+            _LOG.info("[%s] User %d has exceeded rate limit", update_id, message.from_user.id, )
+            await message.reply_text(
+                "Sorry, du hast dein heutiges Limit erreicht. Versuch's morgen noch mal."
+            )
+            return
+
         with TemporaryDirectory(dir=self.config.scratch_dir) as scratch_path:
             scratch_dir = Path(scratch_path)
 

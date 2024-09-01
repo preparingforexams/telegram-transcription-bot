@@ -1,8 +1,8 @@
 import asyncio
 import logging
-from datetime import timezone
+from datetime import datetime, timezone
 
-from rate_limiter import RateLimiter
+from rate_limiter import RateLimiter, Usage
 from rate_limiter.policy import DailyLimitRateLimitingPolicy
 from rate_limiter.repo import PostgresRateLimitingRepo
 from telegram import Message
@@ -27,6 +27,17 @@ class UsageTracker:
             timezone=timezone.utc,
         )
 
+    async def get_conflict(self, user_id: int, at_time: datetime) -> Usage | None:
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(
+            None,
+            lambda: self._rate_limiter.get_offending_usage(
+                context_id="",
+                user_id=user_id,
+                at_time=at_time,
+            ),
+        )
+
     async def track(
         self,
         request: Message,
@@ -34,7 +45,6 @@ class UsageTracker:
         unique_file_id: str,
         response_id: int | None,
     ) -> None:
-        _LOG.info("Tracking usage for message_id %d", request.message_id)
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(
             None,
