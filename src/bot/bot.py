@@ -7,10 +7,11 @@ from typing import Any, cast
 
 from telegram import Audio, Message, Update, User, VideoNote, Voice
 from telegram.constants import FileSizeLimit, MessageLimit
-from telegram.ext import Application, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 from bot.config import Config
 from bot.conversion import AudioConverter
+from bot.localization import find_locale, locale_by_language
 from bot.speech import Transcriber
 from bot.usage import UsageTracker
 
@@ -31,6 +32,13 @@ class Bot:
                 filters=filters.VOICE | filters.AUDIO | filters.VIDEO_NOTE,
                 callback=self._handle_message,
                 block=False,
+            )
+        )
+        app.add_handler(
+            CommandHandler(
+                command="retry",
+                has_args=1,
+                callback=self._relocalize,
             )
         )
         app.run_polling(
@@ -56,9 +64,41 @@ class Bot:
 
         return "".join(result)
 
+    async def _relocalize(self, update: Update, _: Any) -> None:
+        if update.edited_message:
+            return
+
+        update_id = update.update_id
+        _LOG.info("[%s] Received command update", update_id)
+
+        message: Message = update.message  # type: ignore
+        locale_query: str = message.text  # type: ignore
+        locale = find_locale(locale_query)
+        if not locale:
+            _LOG.info("[%s] Unsupported locale: '%s'", update_id, locale_query)
+            supported_langs = ", ".join(sorted(locale_by_language.keys()))
+            await message.reply_text(
+                f"Konnte die angegebene Sprache nicht verstehen. Unterstützt werden: {supported_langs}.",
+            )
+            return
+
+        replied_to_message = message.reply_to_message
+        if not replied_to_message or not (
+            file := replied_to_message.voice
+            or replied_to_message.video_note
+            or replied_to_message.audio
+        ):
+            _LOG.info("[%s] No suitable reply_to_message", update_id)
+            await message.reply_text(
+                "Das Command muss als Antwort auf eine Sprachnachricht, Videonachricht, oder Audiodatei verschickt werden."
+            )
+            return
+
+        await self._process_message(message, file, update_id=update_id, locale=locale)
+
     async def _handle_message(self, update: Update, _: Any) -> None:
         update_id = update.update_id
-        _LOG.info("[%s] Received update", update_id)
+        _LOG.info("[%s] Received message update", update_id)
         message = cast(Message, update.message)
 
         file = message.voice or message.audio or message.video_note
@@ -69,6 +109,16 @@ class Bot:
             )
             return
 
+        await self._process_message(message, file, update_id=update_id, locale=None)
+
+    async def _process_message(
+        self,
+        message: Message,
+        file: Voice | Audio | VideoNote,
+        *,
+        update_id: int,
+        locale: str | None,
+    ) -> None:
         file_size = int(file.file_size or 0)
         if file_size > FileSizeLimit.FILESIZE_DOWNLOAD:
             _LOG.info("[%s] File size exceeds limit", update_id)
@@ -83,16 +133,14 @@ class Bot:
             user_id=user_id,
             at_time=message.date,
             unique_file_id=file.file_unique_id,
-            locale=None,
+            locale=locale,
         ):
             _LOG.info(
                 "[%s] User %d has exceeded rate limit",
                 update_id,
                 user_id,
             )
-            await message.reply_text(
-                "Sorry, du hast dein heutiges Limit erreicht. Versuch's morgen noch mal."
-            )
+            await message.reply_text("Sorry, du hast dein Limit erreicht.")
             return
 
         with TemporaryDirectory(dir=self.config.scratch_dir) as scratch_path:
@@ -107,7 +155,9 @@ class Bot:
             )
 
             _LOG.debug("[%s] Transcribing audio", update_id)
-            result = await self.transcriber.transcribe(converted_audio_file)
+            result = await self.transcriber.transcribe(
+                converted_audio_file, locale=locale
+            )
 
             if not result:
                 _LOG.info("[%s] No transcription result", update_id)
@@ -120,7 +170,7 @@ class Bot:
                         message,
                         response_id=response.message_id,
                         unique_file_id=file.file_unique_id,
-                        locale=None,
+                        locale=locale,
                     )
                 return
 
@@ -145,7 +195,7 @@ class Bot:
                 message,
                 response_id=first_response_message.message_id,  # type: ignore[union-attr]
                 unique_file_id=file.file_unique_id,
-                locale=None,
+                locale=locale,
             )
 
     async def _download_file(

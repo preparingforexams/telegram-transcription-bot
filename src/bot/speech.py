@@ -19,14 +19,24 @@ class Transcriber:
         )
         self._speech_config.set_profanity(speechsdk.ProfanityOption.Raw)
 
-    async def transcribe(self, audio_file: Path) -> str | None:
-        recognizer = speechsdk.SpeechRecognizer(
-            speech_config=self._speech_config,
-            audio_config=speechsdk.AudioConfig(filename=str(audio_file)),
-            auto_detect_source_language_config=speechsdk.languageconfig.AutoDetectSourceLanguageConfig(
-                languages=[locale_by_language[lang] for lang in auto_detect_languages],
-            ),
-        )
+    async def transcribe(self, audio_file: Path, locale: str | None) -> str | None:
+        audio_config = speechsdk.AudioConfig(filename=str(audio_file))
+        if locale is None:
+            recognizer = speechsdk.SpeechRecognizer(
+                speech_config=self._speech_config,
+                audio_config=audio_config,
+                auto_detect_source_language_config=speechsdk.languageconfig.AutoDetectSourceLanguageConfig(
+                    languages=[
+                        locale_by_language[lang] for lang in auto_detect_languages
+                    ],
+                ),
+            )
+        else:
+            recognizer = speechsdk.SpeechRecognizer(
+                speech_config=self._speech_config,
+                audio_config=audio_config,
+                language=locale,
+            )
 
         # TODO: clean this up.
         result_text = ""
