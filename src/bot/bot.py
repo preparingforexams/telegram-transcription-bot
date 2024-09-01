@@ -79,7 +79,7 @@ class Bot:
             return
 
         user_id = cast(User, message.from_user).id
-        if self.usage_tracker.get_conflict(user_id, message.date):
+        if await self.usage_tracker.get_conflict(user_id, message.date):
             _LOG.info(
                 "[%s] User %d has exceeded rate limit",
                 update_id,
