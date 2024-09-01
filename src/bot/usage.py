@@ -33,6 +33,7 @@ class UsageTracker:
         *,
         response_id: int | None,
     ) -> None:
+        _LOG.info("Tracking usage for message_id %d", request.message_id)
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(
             None,
