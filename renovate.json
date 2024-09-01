@@ -2,5 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>BlindfoldedSurgery/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "prep-rate-limiter",
+        "ghcr.io/preparingforexams/rate-limiter-migrations-*"
+      ],
+      "groupName": "prep-rate-limiter"
+    }
   ]
 }

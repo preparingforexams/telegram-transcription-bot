@@ -12,6 +12,7 @@ from telegram.ext import Application, MessageHandler, filters
 from bot.config import Config
 from bot.conversion import AudioConverter
 from bot.speech import Transcriber
+from bot.usage import UsageTracker
 
 _LOG = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class Bot:
         self.config = config
         self.converter = AudioConverter()
         self.transcriber = Transcriber(config.azure_tts)
+        self.usage_tracker = UsageTracker(config.usage)
 
     def run(self) -> None:
         app = Application.builder().token(self.config.telegram.token).build()
@@ -34,6 +36,9 @@ class Bot:
         app.run_polling(
             stop_signals=[signal.SIGTERM, signal.SIGINT],
         )
+
+        _LOG.info("Telegram application has shut down. Cleaning up...")
+        self.usage_tracker.close()
 
     @staticmethod
     def _easter_eggs(s: str) -> str:

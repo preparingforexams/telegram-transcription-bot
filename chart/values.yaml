@@ -1,3 +1,12 @@
 appVersion: latest
 image:
   app: ghcr.io/bjoernpetersen/telegram-trazurebot
+postgres:
+  database: transbot
+  user: born-transbot.transbot
+  service: born-postgres
+  namespace: born-postgres
+rateLimiter:
+  # renovate: datasource=docker
+  image: ghcr.io/preparingforexams/rate-limiter-migrations-postgres:5.0.4
+

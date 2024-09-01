@@ -29,6 +29,25 @@ spec:
         - name: scratch
           emptyDir:
             sizeLimit: "8Gi"
+      initContainers:
+        - name: flyway
+          image: {{ .Values.rateLimiter.image }}
+          volumeMounts:
+            - mountPath: /state
+              name: state
+          envFrom:
+            - configMapRef:
+                name: db-config
+          env:
+            - name: FLYWAY_URL
+              value: jdbc:postgresql://$(DB_HOST):5432/$(DB_NAME)
+            - name: FLYWAY_USER
+              value: $(DB_USER)
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.user }}.{{ .Values.postgres.service }}.credentials.postgresql.acid.zalan.do
+                  key: password
       containers:
         - name: app
           image: {{ .Values.image.app }}:{{ .Values.appVersion }}
@@ -38,6 +57,11 @@ spec:
           env:
             - name: SCRATCH_DIR
               value: /scratch
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.user }}.{{ .Values.postgres.service }}.credentials.postgresql.acid.zalan.do
+                  key: password
           volumeMounts:
             - mountPath: /scratch
               name: scratch
