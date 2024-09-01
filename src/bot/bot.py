@@ -5,8 +5,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast
 
-from telegram import Audio, Message, Update, User, VideoNote, Voice
-from telegram.constants import FileSizeLimit, MessageLimit
+from telegram import Audio, Message, Update, User, VideoNote, Voice, ReactionType
+from telegram.constants import FileSizeLimit, MessageLimit, ChatType
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -151,7 +151,10 @@ class Bot:
                 update_id,
                 user_id,
             )
-            await message.reply_text("Sorry, du hast dein Limit erreicht.")
+            if message.chat.type == ChatType.PRIVATE:
+                await message.reply_text("Sorry, du hast dein Limit erreicht.")
+            else:
+                await message.set_reaction("👎")
             return
 
         with TemporaryDirectory(dir=self.config.scratch_dir) as scratch_path:
