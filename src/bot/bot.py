@@ -5,7 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast
 
-from telegram import Audio, Message, Update, VideoNote, Voice
+from telegram import Audio, Message, Update, User, VideoNote, Voice
 from telegram.constants import FileSizeLimit, MessageLimit
 from telegram.ext import Application, MessageHandler, filters
 
@@ -78,8 +78,13 @@ class Bot:
             )
             return
 
-        if usage := self.usage_tracker.get_conflict(message.from_user.id, message.date):
-            _LOG.info("[%s] User %d has exceeded rate limit", update_id, message.from_user.id, )
+        user_id = cast(User, message.from_user).id
+        if self.usage_tracker.get_conflict(user_id, message.date):
+            _LOG.info(
+                "[%s] User %d has exceeded rate limit",
+                update_id,
+                user_id,
+            )
             await message.reply_text(
                 "Sorry, du hast dein heutiges Limit erreicht. Versuch's morgen noch mal."
             )
