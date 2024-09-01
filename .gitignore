@@ -8,3 +8,5 @@ __pycache__
 test_api_ninjas.py
 
 .env
+
+usages.db

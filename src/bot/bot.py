@@ -1,6 +1,7 @@
 import logging
 import re
 import signal
+from idlelib.rpc import response_queue
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast
@@ -200,12 +201,12 @@ class Bot:
             )
             first_response_message: Message | None = None
             for chunk in chunks:
-                message = await message.reply_text(
+                response_message = await message.reply_text(
                     text=chunk,
                     disable_notification=True,
                 )
                 if first_response_message is None:
-                    first_response_message = message
+                    first_response_message = response_message
             await self.usage_tracker.track(
                 message,
                 response_id=first_response_message.message_id,  # type: ignore[union-attr]
