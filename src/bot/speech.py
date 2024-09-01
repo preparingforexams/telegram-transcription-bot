@@ -6,6 +6,7 @@ from typing import Any
 import azure.cognitiveservices.speech as speechsdk
 
 from bot.config import AzureTtsConfig
+from bot.localization import auto_detect_languages, locale_by_language
 
 _LOG = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class Transcriber:
             speech_config=self._speech_config,
             audio_config=speechsdk.AudioConfig(filename=str(audio_file)),
             auto_detect_source_language_config=speechsdk.languageconfig.AutoDetectSourceLanguageConfig(
-                languages=["en-US", "de-DE"],
+                languages=[locale_by_language[lang] for lang in auto_detect_languages],
             ),
         )
 

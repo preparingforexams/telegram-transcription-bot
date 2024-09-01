@@ -9,4 +9,4 @@ postgres:
 rateLimiter:
   # renovate: datasource=docker
   image: ghcr.io/preparingforexams/rate-limiter-migrations-postgres:5.0.4
-
+  dailyRateLimit: 100

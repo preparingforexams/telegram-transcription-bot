@@ -65,9 +65,21 @@ class DatabaseConfig:
 
 
 @dataclass
+class RateLimitConfig:
+    daily: int
+
+    @classmethod
+    def from_env(cls, env: Env) -> Self:
+        return cls(
+            daily=env.get_int("DAILY", default=10),
+        )
+
+
+@dataclass
 class Config:
     azure_tts: AzureTtsConfig
     database: DatabaseConfig
+    rate_limit: RateLimitConfig
     scratch_dir: Path | None
     sentry: SentryConfig | None
     telegram: TelegramConfig
@@ -83,6 +95,7 @@ class Config:
         return cls(
             azure_tts=AzureTtsConfig.from_env(env.scoped("AZURE_")),
             database=DatabaseConfig.from_env(env.scoped("DB_")),
+            rate_limit=RateLimitConfig.from_env(env.scoped("RATE_LIMIT_")),
             scratch_dir=scratch_dir,
             sentry=SentryConfig.from_env(env),
             telegram=TelegramConfig.from_env(env.scoped("TELEGRAM_")),

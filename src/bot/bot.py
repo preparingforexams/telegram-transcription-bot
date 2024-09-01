@@ -22,7 +22,7 @@ class Bot:
         self.config = config
         self.converter = AudioConverter()
         self.transcriber = Transcriber(config.azure_tts)
-        self.usage_tracker = UsageTracker(config.database)
+        self.usage_tracker = UsageTracker(config.database, config.rate_limit)
 
     def run(self) -> None:
         app = Application.builder().token(self.config.telegram.token).build()
@@ -79,7 +79,12 @@ class Bot:
             return
 
         user_id = cast(User, message.from_user).id
-        if await self.usage_tracker.get_conflict(user_id, message.date):
+        if await self.usage_tracker.get_conflict(
+            user_id=user_id,
+            at_time=message.date,
+            unique_file_id=file.file_unique_id,
+            locale=None,
+        ):
             _LOG.info(
                 "[%s] User %d has exceeded rate limit",
                 update_id,
@@ -115,6 +120,7 @@ class Bot:
                         message,
                         response_id=response.message_id,
                         unique_file_id=file.file_unique_id,
+                        locale=None,
                     )
                 return
 
@@ -139,6 +145,7 @@ class Bot:
                 message,
                 response_id=first_response_message.message_id,  # type: ignore[union-attr]
                 unique_file_id=file.file_unique_id,
+                locale=None,
             )
 
     async def _download_file(

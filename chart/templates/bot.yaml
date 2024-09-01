@@ -50,6 +50,8 @@ spec:
           image: {{ .Values.image.app }}:{{ .Values.appVersion }}
           envFrom:
             - configMapRef:
+                name: config
+            - configMapRef:
                 name: db-config
             - secretRef:
                 name: secrets
