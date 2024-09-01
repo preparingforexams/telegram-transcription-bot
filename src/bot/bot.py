@@ -7,7 +7,13 @@ from typing import Any, cast
 
 from telegram import Audio, Message, Update, User, VideoNote, Voice
 from telegram.constants import FileSizeLimit, MessageLimit
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+)
 
 from bot.config import Config
 from bot.conversion import AudioConverter
@@ -39,6 +45,7 @@ class Bot:
                 command="retry",
                 has_args=1,
                 callback=self._relocalize,
+                filters=~filters.UpdateType.EDITED,
             )
         )
         app.run_polling(
@@ -64,7 +71,11 @@ class Bot:
 
         return "".join(result)
 
-    async def _relocalize(self, update: Update, _: Any) -> None:
+    async def _relocalize(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+    ) -> None:
         if update.edited_message:
             return
 
@@ -72,7 +83,7 @@ class Bot:
         _LOG.info("[%s] Received command update", update_id)
 
         message: Message = update.message  # type: ignore
-        locale_query: str = message.text  # type: ignore
+        locale_query: str = context.args[0]  # type: ignore
         locale = find_locale(locale_query)
         if not locale:
             _LOG.info("[%s] Unsupported locale: '%s'", update_id, locale_query)
