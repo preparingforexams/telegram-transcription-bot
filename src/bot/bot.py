@@ -5,8 +5,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast
 
-from telegram import Audio, Message, Update, User, VideoNote, Voice, ReactionType
-from telegram.constants import FileSizeLimit, MessageLimit, ChatType
+from telegram import Audio, Message, Update, User, VideoNote, Voice
+from telegram.constants import ChatType, FileSizeLimit, MessageLimit
 from telegram.ext import (
     Application,
     CommandHandler,
