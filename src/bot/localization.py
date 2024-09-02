@@ -14,6 +14,9 @@ locale_by_language = {
     "es": "es-ES",
     "🇪🇸": "es-ES",
     "🇲🇽": "es-MX",
+    "fr": "fr-FR",
+    "🇫🇷": "fr-FR",
+    "🥖": "fr-FR",
 }
 
 
