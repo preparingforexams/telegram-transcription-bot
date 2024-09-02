@@ -180,13 +180,13 @@ class Bot:
             if not result:
                 _LOG.info("[%s] No transcription result", update_id)
                 if isinstance(file, Voice):
-                    response = await message.reply_text(
-                        "Ich habe leider nichts verstanden.",
-                        disable_notification=True,
+                    await message.set_reaction(
+                        "🤷‍♂️",
+                        is_big=True,
                     )
                     await self.usage_tracker.track(
                         message,
-                        response_id=response.message_id,
+                        response_id=None,
                         unique_file_id=file.file_unique_id,
                         locale=locale,
                     )
