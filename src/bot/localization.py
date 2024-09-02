@@ -5,8 +5,15 @@ auto_detect_languages = [
 
 locale_by_language = {
     "de": "de-DE",
+    "🇩🇪": "de-DE",
+    "🇦🇹": "de-AT",
     "en": "en-US",
+    "🇺🇸": "en-US",
+    "🇬🇧": "en-GB",
+    "🏴󠁧󠁢󠁥󠁮󠁧󠁿": "en-GB",
     "es": "es-ES",
+    "🇪🇸": "es-ES",
+    "🇲🇽": "es-ES",
 }
 
 
