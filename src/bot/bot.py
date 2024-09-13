@@ -233,7 +233,8 @@ class Bot:
 
     @staticmethod
     def _split_chunks(
-        text: str, length: int = MessageLimit.MAX_TEXT_LENGTH
+        text: str,
+        length: int = MessageLimit.MAX_TEXT_LENGTH - 7,
     ) -> list[str]:
         chunks = []
         remaining = text
