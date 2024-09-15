@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from rate_limiter import RateLimiter, RateLimitingPolicy, Usage
 from rate_limiter.policy import DailyLimitRateLimitingPolicy
@@ -44,12 +44,12 @@ class UsageTracker:
         self._default_rate_limiter = RateLimiter(
             policy=DailyLimitRateLimitingPolicy(limit=limit_config.daily),
             repo=repo,
-            timezone=timezone.utc,
+            timezone=UTC,
         )
         self._relocalize_rate_limiter = RateLimiter(
             policy=_UseOncePolicy(),
             repo=repo,
-            timezone=timezone.utc,
+            timezone=UTC,
         )
 
     def _get_conflict(

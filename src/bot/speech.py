@@ -64,4 +64,4 @@ class Transcriber:
                 await asyncio.sleep(0.5)
             return result_text or None
         except BaseException as e:
-            raise IOError from e
+            raise OSError from e

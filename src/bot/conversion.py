@@ -32,6 +32,6 @@ class AudioConverter:
                 return_code,
                 extra=dict(stdout=stdout, stderr=stderr),
             )
-            raise IOError("Could not convert file")
+            raise OSError("Could not convert file")
 
         return output_file
