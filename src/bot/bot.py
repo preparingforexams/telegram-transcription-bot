@@ -119,7 +119,9 @@ class Bot:
 
         if file is None:
             _LOG.error(
-                "[%s] Received unsupported update", update_id, extra=update.to_dict()
+                "[%s] Received unsupported update: %s",
+                update_id,
+                update.to_dict().keys(),
             )
             return
 
