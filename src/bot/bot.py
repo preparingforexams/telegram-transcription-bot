@@ -35,7 +35,10 @@ class Bot:
         app = Application.builder().token(self.config.telegram.token).build()
         app.add_handler(
             MessageHandler(
-                filters=filters.VOICE | filters.AUDIO | filters.VIDEO_NOTE,
+                filters=filters.VOICE
+                | filters.AUDIO
+                | filters.VIDEO_NOTE
+                | ~filters.UpdateType.EDITED,
                 callback=self._handle_message,
                 block=False,
             )
