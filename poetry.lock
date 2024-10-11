@@ -22,17 +22,17 @@ trio = ["trio (>=0.26.1)"]
 
 [[package]]
 name = "azure-cognitiveservices-speech"
-version = "1.40.0"
+version = "1.41.1"
 description = "Microsoft Cognitive Services Speech SDK for Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "azure_cognitiveservices_speech-1.40.0-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:c19e6e95db81e7b2931641ad9c945b8a914541feada9ae131a253ffdf4d731f4"},
-    {file = "azure_cognitiveservices_speech-1.40.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:5f9dcd42cb265ca2e7eb6e4b6a42dc0b2d5e889347cf48e0b254f6911bf88ace"},
-    {file = "azure_cognitiveservices_speech-1.40.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:9fce3f8b201129adec5d7d17ee004168cff332e74e658efce4fec665eefae54b"},
-    {file = "azure_cognitiveservices_speech-1.40.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:ad72f0c476ccbbe7a733e76ea4f6eaee2df1455b9e48ba118ba72ddd971c558a"},
-    {file = "azure_cognitiveservices_speech-1.40.0-py3-none-win32.whl", hash = "sha256:74e4ead7d685d96df86a31492faddabbeec44b2c9fb16b14c9cc19430a4aa9f8"},
-    {file = "azure_cognitiveservices_speech-1.40.0-py3-none-win_amd64.whl", hash = "sha256:8f17752cd89231dd9404b70b4832c17aa1f491326c163f53bfa2c0879c03f14f"},
+    {file = "azure_cognitiveservices_speech-1.41.1-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:ea9d466f236598e37ea3dad1db203a2901ef91b407e435b59d9b22669324074d"},
+    {file = "azure_cognitiveservices_speech-1.41.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:0f52f7852965bb2f5cf9aed0d3c6ef58238867bb6f0287eba95e42e1a513dd74"},
+    {file = "azure_cognitiveservices_speech-1.41.1-py3-none-manylinux1_x86_64.whl", hash = "sha256:70030c6f1c875895eb985de3775f62349aa8687b6616afa9498466e281f178d3"},
+    {file = "azure_cognitiveservices_speech-1.41.1-py3-none-manylinux2014_aarch64.whl", hash = "sha256:94ddda0deb3a9fee58a0a781b09ab8ab95401c5daf9bfc9f84ce8134d3a77055"},
+    {file = "azure_cognitiveservices_speech-1.41.1-py3-none-win32.whl", hash = "sha256:039eec52c0a549a30658fa24a06d42afc6366c47b03b961c0b6f730fd421293e"},
+    {file = "azure_cognitiveservices_speech-1.41.1-py3-none-win_amd64.whl", hash = "sha256:13679949f52f89c263e8b1c6a2d0f384d663917c58b150772cf42b710a01321c"},
 ]
 
 [[package]]
@@ -536,13 +536,13 @@ files = [
 
 [[package]]
 name = "sentry-sdk"
-version = "2.15.0"
+version = "2.16.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "sentry_sdk-2.15.0-py2.py3-none-any.whl", hash = "sha256:8fb0d1a4e1a640172f31502e4503543765a1fe8a9209779134a4ac52d4677303"},
-    {file = "sentry_sdk-2.15.0.tar.gz", hash = "sha256:a599e7d3400787d6f43327b973e55a087b931ba2c592a7a7afa691f8eb5e75e2"},
+    {file = "sentry_sdk-2.16.0-py2.py3-none-any.whl", hash = "sha256:49139c31ebcd398f4f6396b18910610a0c1602f6e67083240c33019d1f6aa30c"},
+    {file = "sentry_sdk-2.16.0.tar.gz", hash = "sha256:90f733b32e15dfc1999e6b7aca67a38688a567329de4d6e184154a73f96c6892"},
 ]
 
 [package.dependencies]
@@ -565,6 +565,7 @@ falcon = ["falcon (>=1.4)"]
 fastapi = ["fastapi (>=0.79.0)"]
 flask = ["blinker (>=1.1)", "flask (>=0.11)", "markupsafe"]
 grpcio = ["grpcio (>=1.21.1)", "protobuf (>=3.8.0)"]
+http2 = ["httpcore[http2] (==1.*)"]
 httpx = ["httpx (>=0.16.0)"]
 huey = ["huey (>=2)"]
 huggingface-hub = ["huggingface-hub (>=0.22)"]
