@@ -8,5 +8,5 @@ postgres:
   namespace: born-postgres
 rateLimiter:
   # renovate: datasource=docker
-  image: ghcr.io/preparingforexams/rate-limiter-migrations-postgres:5.0.5
+  image: ghcr.io/preparingforexams/rate-limiter-migrations-postgres:5.1.0
   dailyRateLimit: 100
