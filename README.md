@@ -1,1 +1,1 @@
-# telegram-trazurebot
+# telegram-transcription-bot
