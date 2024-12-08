@@ -1,9 +1,9 @@
 appVersion: latest
 image:
-  app: ghcr.io/bjoernpetersen/telegram-trazurebot
+  app: ghcr.io/preparingforexams/telegram-transcription-bot
 postgres:
   database: transbot
-  user: born-transbot.transbot
+  user: prep-transbot.transbot
   service: born-postgres
   namespace: born-postgres
 rateLimiter:
