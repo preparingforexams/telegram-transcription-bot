@@ -6,16 +6,22 @@ on:
 
 jobs:
   required-meta:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     uses: BlindfoldedSurgery/actions-meta/.github/workflows/required.yml@v1
 
   lint:
     uses: BlindfoldedSurgery/actions-python/.github/workflows/lint.yml@v2
     with:
+      build-tool: uv
       python-version: '3.13'
 
   test:
     uses: BlindfoldedSurgery/actions-python/.github/workflows/test.yml@v2
     with:
+      build-tool: uv
       python-version: '3.13'
 
   build-container-image:
@@ -28,8 +34,10 @@ jobs:
       push-image: ${{ github.ref_name == github.event.repository.default_branch }}
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.ref_name == github.event.repository.default_branch
+    permissions:
+      contents: write
     needs:
       - build-container-image
     steps:
