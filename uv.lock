@@ -52,7 +52,7 @@ requires-dist = [
     { name = "azure-cognitiveservices-speech", specifier = "==1.41.*" },
     { name = "bs-config", extras = ["dotenv"], specifier = "==1.1.1", index = "https://pypi.bjoernpetersen.net/" },
     { name = "click", specifier = ">=8,<9" },
-    { name = "prep-rate-limiter", extras = ["postgres"], specifier = "==6.0.2", index = "https://pypi.bjoernpetersen.net/" },
+    { name = "prep-rate-limiter", extras = ["postgres"], specifier = "==6.0.3", index = "https://pypi.bjoernpetersen.net/" },
     { name = "python-telegram-bot", specifier = "==21.9" },
     { name = "sentry-sdk", specifier = ">=2,<3" },
 ]
@@ -247,16 +247,16 @@ wheels = [
 
 [[package]]
 name = "prep-rate-limiter"
-version = "6.0.2"
+version = "6.0.3"
 source = { registry = "https://pypi.bjoernpetersen.net/" }
 dependencies = [
     { name = "deprecated" },
     { name = "opentelemetry-api" },
     { name = "tzdata" },
 ]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-6.0.2.tar.gz", hash = "sha256:e72c82869f227ae71f942495d64d914852e944b2ed8a921b38a8bd87399e7c61" }
+sdist = { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-6.0.3.tar.gz", hash = "sha256:58c369b223e0e2c1fb8d7da2a2a9944b4528eaed1e0d3e834947aac6bf4d099b" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-6.0.2-py3-none-any.whl", hash = "sha256:927eff59a242848ae030525379b70f9a59459d4a82a561e707d865a8225d1542" },
+    { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-6.0.3-py3-none-any.whl", hash = "sha256:b76ea0d7a417e766a668fa07b71594beb676a4b04b5420d27fa272d49e1fb4a5" },
 ]
 
 [package.optional-dependencies]

@@ -13,7 +13,7 @@ dependencies = [
     "azure-cognitiveservices-speech ==1.41.*",
     "bs-config [dotenv] ==1.1.1",
     "click >=8, <9",
-    "prep-rate-limiter [postgres] ==6.0.2",
+    "prep-rate-limiter [postgres] ==6.0.3",
     "python-telegram-bot ==21.9",
     "sentry-sdk >=2, <3",
 ]
