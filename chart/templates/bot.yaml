@@ -12,7 +12,7 @@ metadata:
   name: bot
 spec:
   replicas: 1
-  revisionHistoryLimit: 2
+  revisionHistoryLimit: 0
   selector:
     matchLabels:
       app: bot
@@ -22,16 +22,37 @@ spec:
       labels:
         app: bot
     spec:
+      serviceAccountName: bot
       terminationGracePeriodSeconds: 120
       securityContext:
-        fsGroup: 500
+        fsGroup: 1000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       volumes:
         - name: scratch
-          emptyDir:
-            sizeLimit: "8Gi"
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                storageClassName: "longhorn-temp"
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: "8Gi"
       initContainers:
         - name: flyway
           image: {{ .Values.rateLimiter.image }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 300m
+              memory: 128Mi
+            limits:
+              cpu: 300m
           envFrom:
             - configMapRef:
                 name: db-config
@@ -66,6 +87,10 @@ spec:
           volumeMounts:
             - mountPath: /scratch
               name: scratch
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
           resources:
             requests:
               cpu: 50m
