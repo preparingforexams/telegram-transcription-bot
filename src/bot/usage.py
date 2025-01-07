@@ -78,7 +78,7 @@ class UsageTracker:
             at_time=at_time,
         )
 
-    async def _cleanup(self) ->None:
+    async def _cleanup(self) -> None:
         now = datetime.now(tz=UTC)
         last_cleanup = self._last_cleanup
         if last_cleanup is not None and (now - last_cleanup) < timedelta(hours=1):
@@ -144,7 +144,7 @@ class UsageTracker:
         cleanup = self._cleanup()
 
         loop = asyncio.get_running_loop()
-        track= loop.run_in_executor(
+        track = loop.run_in_executor(
             None,
             lambda: self._track(
                 request=request,
@@ -154,7 +154,7 @@ class UsageTracker:
             ),
         )
 
-        await asyncio.wait([cleanup, track])
+        await asyncio.gather(cleanup, track)
 
     def close(self) -> None:
         self._default_rate_limiter.close()
