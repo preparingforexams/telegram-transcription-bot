@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from rate_limiter import RateLimiter, RateLimitingPolicy, Usage
 from rate_limiter.policy import DailyLimitRateLimitingPolicy
@@ -33,6 +33,7 @@ class UsageTracker:
     def __init__(
         self, db_config: DatabaseConfig, limit_config: RateLimitConfig
     ) -> None:
+        self._last_cleanup: datetime | None = None
         repo = PostgresRateLimitingRepo.connect(
             host=db_config.db_host,
             database=db_config.db_name,
@@ -45,6 +46,7 @@ class UsageTracker:
             policy=DailyLimitRateLimitingPolicy(limit=limit_config.daily),
             repo=repo,
             timezone=UTC,
+            retention_time=timedelta(weeks=1),
         )
         self._relocalize_rate_limiter = RateLimiter(
             policy=_UseOncePolicy(),
@@ -75,6 +77,17 @@ class UsageTracker:
             user_id=user_id,
             at_time=at_time,
         )
+
+    async def _cleanup(self) ->None:
+        now = datetime.now(tz=UTC)
+        last_cleanup = self._last_cleanup
+        if last_cleanup is not None and (now - last_cleanup) < timedelta(hours=1):
+            return
+
+        _LOG.info("Triggering rate limiter housekeeping")
+        self._last_cleanup = now
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, self._default_rate_limiter.do_housekeeping)
 
     async def get_conflict(
         self,
@@ -128,8 +141,10 @@ class UsageTracker:
         response_id: int | None,
         locale: str | None,
     ) -> None:
+        cleanup = self._cleanup()
+
         loop = asyncio.get_running_loop()
-        await loop.run_in_executor(
+        track= loop.run_in_executor(
             None,
             lambda: self._track(
                 request=request,
@@ -138,6 +153,8 @@ class UsageTracker:
                 locale=locale,
             ),
         )
+
+        await asyncio.wait([cleanup, track])
 
     def close(self) -> None:
         self._default_rate_limiter.close()
