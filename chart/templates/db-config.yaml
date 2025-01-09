@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: db-config
-data:
-  DB_NAME: "{{ .Values.postgres.database }}"
-  DB_HOST: "{{ .Values.postgres.service }}.{{ .Values.postgres.namespace}}"
-  DB_USER: "{{ .Values.postgres.user }}"

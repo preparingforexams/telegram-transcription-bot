@@ -54,7 +54,7 @@ spec:
             limits:
               cpu: 300m
           envFrom:
-            - configMapRef:
+            - secretRef:
                 name: db-config
           env:
             - name: FLYWAY_URL
@@ -62,28 +62,20 @@ spec:
             - name: FLYWAY_USER
               value: $(DB_USER)
             - name: FLYWAY_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.postgres.user }}.{{ .Values.postgres.service }}.credentials.postgresql.acid.zalan.do
-                  key: password
+              value: $(DB_PASSWORD)
       containers:
         - name: app
           image: {{ .Values.image.app }}:{{ .Values.appVersion }}
           envFrom:
             - configMapRef:
                 name: config
-            - configMapRef:
+            - secretRef:
                 name: db-config
             - secretRef:
                 name: secrets
           env:
             - name: SCRATCH_DIR
               value: /scratch
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.postgres.user }}.{{ .Values.postgres.service }}.credentials.postgresql.acid.zalan.do
-                  key: password
           volumeMounts:
             - mountPath: /scratch
               name: scratch
