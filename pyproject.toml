@@ -14,7 +14,7 @@ dependencies = [
     "bs-config [dotenv] ==1.1.1",
     "click >=8, <9",
     "prep-rate-limiter [postgres] ==7.0.1",
-    "python-telegram-bot ==21.11.1",
+    "python-telegram-bot ==22.0",
     "sentry-sdk >=2, <3",
 ]
 
