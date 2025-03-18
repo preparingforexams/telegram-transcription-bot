@@ -10,7 +10,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "azure-cognitiveservices-speech ==1.42.*",
+    "azure-cognitiveservices-speech ==1.43.*",
     "bs-config [dotenv] ==1.1.1",
     "click >=8, <9",
     "prep-rate-limiter [postgres] ==7.0.2",
