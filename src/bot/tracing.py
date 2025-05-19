@@ -1,6 +1,7 @@
 import httpx
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.asyncio import AsyncioInstrumentor
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
@@ -25,6 +26,8 @@ def setup_tracing(config: Config) -> None:
         trace_provider.add_span_processor(processor)
 
     trace.set_tracer_provider(trace_provider)
+
+    AsyncioInstrumentor().instrument()
 
 
 class InstrumentedHttpxRequest(HTTPXRequest):
