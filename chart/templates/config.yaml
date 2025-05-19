@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: config
 data:
+  AZURE_SDK_TRACING_IMPLEMENTATION: "opentelemetry"
   ENABLE_TELEMETRY: "true"
   OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "https://api.honeycomb.io"
   RATE_LIMIT_DAILY: "1000"

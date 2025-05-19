@@ -46,11 +46,26 @@ wheels = [
 ]
 
 [[package]]
+name = "azure-core-tracing-opentelemetry"
+version = "1.0.0b12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "azure-core" },
+    { name = "opentelemetry-api" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5a/7f/5de13a331a5f2919417819cc37dcf7c897018f02f83aa82b733e6629a6a6/azure_core_tracing_opentelemetry-1.0.0b12.tar.gz", hash = "sha256:bb454142440bae11fd9d68c7c1d67ae38a1756ce808c5e4d736730a7b4b04144", size = 26010, upload-time = "2025-03-21T00:18:37.346Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/76/5e/97a471f66935e7f89f521d0e11ae49c7f0871ca38f5c319dccae2155c8d8/azure_core_tracing_opentelemetry-1.0.0b12-py3-none-any.whl", hash = "sha256:38fd42709f1cc4bbc4f2797008b1c30a6a01617e49910c05daa3a0d0c65053ac", size = 11962, upload-time = "2025-03-21T00:18:38.581Z" },
+]
+
+[[package]]
 name = "bot"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "azure-cognitiveservices-speech" },
+    { name = "azure-core" },
+    { name = "azure-core-tracing-opentelemetry" },
     { name = "bs-config", extra = ["dotenv"] },
     { name = "click" },
     { name = "opentelemetry-api" },
@@ -74,6 +89,8 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "azure-cognitiveservices-speech", specifier = "==1.44.*" },
+    { name = "azure-core", specifier = "==1.34.*" },
+    { name = "azure-core-tracing-opentelemetry" },
     { name = "bs-config", extras = ["dotenv"], specifier = "==1.1.1", index = "https://pypi.bjoernpetersen.net/" },
     { name = "click", specifier = ">=8,<9" },
     { name = "opentelemetry-api", specifier = "==1.33.*" },

@@ -10,6 +10,8 @@ classifiers = [
 ]
 
 dependencies = [
+    "azure-core ==1.34.*",
+    "azure-core-tracing-opentelemetry",
     "azure-cognitiveservices-speech ==1.44.*",
     "bs-config [dotenv] ==1.1.1",
     "click >=8, <9",
