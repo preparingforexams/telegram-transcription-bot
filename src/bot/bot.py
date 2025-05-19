@@ -59,12 +59,9 @@ class Bot:
         self.usage_tracker = UsageTracker(config.database, config.rate_limit)
 
     def run(self) -> None:
-        base_request = InstrumentedHttpxRequest(connection_pool_size=2)
-
         app = (
             Application.builder()
-            .request(base_request)
-            .get_updates_request(base_request)
+            .request(InstrumentedHttpxRequest(connection_pool_size=2))
             .token(self.config.telegram.token)
             .build()
         )
