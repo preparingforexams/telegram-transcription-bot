@@ -13,7 +13,12 @@ dependencies = [
     "azure-cognitiveservices-speech ==1.43.*",
     "bs-config [dotenv] ==1.1.1",
     "click >=8, <9",
-    "prep-rate-limiter [postgres] ==7.0.6",
+    "opentelemetry-api ==1.33.*",
+    "opentelemetry-sdk ==1.33.*",
+    "opentelemetry-exporter-otlp-proto-grpc ==1.33.*",
+    "opentelemetry-instrumentation-httpx",
+    "opentelemetry-instrumentation-logging",
+    "prep-rate-limiter [postgres,opentelemetry-postgres] ==7.0.6",
     "python-telegram-bot ==22.1",
     "sentry-sdk >=2, <3",
 ]

@@ -79,6 +79,7 @@ class RateLimitConfig:
 class Config:
     azure_tts: AzureTtsConfig
     database: DatabaseConfig
+    enable_telemetry: bool
     rate_limit: RateLimitConfig
     scratch_dir: Path | None
     sentry: SentryConfig | None
@@ -95,6 +96,7 @@ class Config:
         return cls(
             azure_tts=AzureTtsConfig.from_env(env.scoped("AZURE_")),
             database=DatabaseConfig.from_env(env.scoped("DB_")),
+            enable_telemetry=env.get_bool("ENABLE_TELEMETRY", default=False),
             rate_limit=RateLimitConfig.from_env(env.scoped("RATE_LIMIT_")),
             scratch_dir=scratch_dir,
             sentry=SentryConfig.from_env(env),

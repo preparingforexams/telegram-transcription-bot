@@ -19,6 +19,7 @@ from bot.config import Config
 from bot.conversion import AudioConverter
 from bot.localization import find_locale, locale_by_language
 from bot.speech import Transcriber
+from bot.tracing import InstrumentedHttpxRequest
 from bot.usage import UsageTracker
 
 _LOG = logging.getLogger(__name__)
@@ -32,7 +33,16 @@ class Bot:
         self.usage_tracker = UsageTracker(config.database, config.rate_limit)
 
     def run(self) -> None:
-        app = Application.builder().token(self.config.telegram.token).build()
+        base_request = InstrumentedHttpxRequest(connection_pool_size=2)
+
+        app = (
+            Application.builder()
+            .request(base_request)
+            .get_updates_request(base_request)
+            .token(self.config.telegram.token)
+            .build()
+        )
+
         app.add_handler(
             MessageHandler(
                 filters=(filters.VOICE | filters.AUDIO | filters.VIDEO_NOTE)
