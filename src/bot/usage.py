@@ -1,7 +1,9 @@
 import asyncio
 import logging
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 
+from opentelemetry import context, trace
 from rate_limiter import RateLimiter, RateLimitingPolicy, Usage
 from rate_limiter.policy import DailyLimitRateLimitingPolicy
 from rate_limiter.repo import PostgresRateLimitingRepo
@@ -10,6 +12,7 @@ from telegram import Message
 from bot.config import DatabaseConfig, RateLimitConfig
 
 _LOG = logging.getLogger(__name__)
+_tracer = trace.get_tracer(__name__)
 
 
 class _UseOncePolicy(RateLimitingPolicy):
@@ -54,6 +57,17 @@ class UsageTracker:
             timezone=UTC,
         )
 
+    @staticmethod
+    async def _run_in_loop[R](func: Callable[[], R]) -> R:
+        loop = asyncio.get_running_loop()
+        ctx = context.get_current()
+
+        def __run() -> R:
+            context.attach(ctx)
+            return func()
+
+        return await loop.run_in_executor(None, __run)
+
     def _get_conflict(
         self,
         *,
@@ -86,8 +100,7 @@ class UsageTracker:
 
         _LOG.info("Triggering rate limiter housekeeping")
         self._last_cleanup = now
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(None, self._default_rate_limiter.do_housekeeping)
+        await self._run_in_loop(self._default_rate_limiter.do_housekeeping)
 
     async def get_conflict(
         self,
@@ -97,9 +110,7 @@ class UsageTracker:
         unique_file_id: str,
         locale: str | None,
     ) -> Usage | None:
-        loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(
-            None,
+        return await self._run_in_loop(
             lambda: self._get_conflict(
                 user_id=user_id,
                 at_time=at_time,
@@ -143,9 +154,7 @@ class UsageTracker:
     ) -> None:
         cleanup = self._cleanup()
 
-        loop = asyncio.get_running_loop()
-        track = loop.run_in_executor(
-            None,
+        track = self._run_in_loop(
             lambda: self._track(
                 request=request,
                 unique_file_id=unique_file_id,
