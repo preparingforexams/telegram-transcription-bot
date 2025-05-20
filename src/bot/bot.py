@@ -73,8 +73,6 @@ class Bot:
         async def __post_init(_: Any) -> None:
             init_ctx_token = init_ctx
             if init_ctx_token is not None:
-                context_api.attach(ctx)
-                context_api.detach(init_ctx_token)
                 init_span.end()
 
         app = (
