@@ -3,13 +3,11 @@ import re
 import signal
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from contextvars import Token
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast
 
-from opentelemetry import context as context_api
-from opentelemetry import trace
+from opentelemetry import trace, context
 from telegram import Audio, Message, Update, User, VideoNote, Voice
 from telegram.constants import ChatType, FileSizeLimit, MessageLimit
 from telegram.ext import (
@@ -66,15 +64,6 @@ class Bot:
         self.usage_tracker = UsageTracker(config.database, config.rate_limit)
 
     def run(self) -> None:
-        ctx = context_api.get_current()
-        init_span = tracer.start_span("init")
-        init_ctx: Token[context_api.Context] | None = None
-
-        async def __post_init(_: Any) -> None:
-            init_ctx_token = init_ctx
-            if init_ctx_token is not None:
-                init_span.end()
-
         app = (
             Application.builder()
             .request(InstrumentedHttpxRequest(connection_pool_size=2))
@@ -100,7 +89,6 @@ class Bot:
             )
         )
 
-        init_ctx = context_api.attach(trace.set_span_in_context(init_span, ctx))
         app.run_polling(
             stop_signals=[signal.SIGTERM, signal.SIGINT],
         )
