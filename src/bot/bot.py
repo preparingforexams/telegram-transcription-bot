@@ -66,13 +66,15 @@ class Bot:
         self.usage_tracker = UsageTracker(config.database, config.rate_limit)
 
     def run(self) -> None:
+        ctx = context_api.get_current()
         init_span = tracer.start_span("init")
-        ctx: Token[context_api.Context] | None = None
+        init_ctx: Token[context_api.Context] | None = None
 
         async def __post_init(_: Any) -> None:
-            init_ctx = ctx
-            if init_ctx is not None:
-                context_api.detach(init_ctx)
+            init_ctx_token = init_ctx
+            if init_ctx_token is not None:
+                context_api.attach(ctx)
+                context_api.detach(init_ctx_token)
                 init_span.end()
 
         app = (
@@ -100,7 +102,7 @@ class Bot:
             )
         )
 
-        ctx = context_api.attach(trace.set_span_in_context(init_span))
+        init_ctx = context_api.attach(trace.set_span_in_context(init_span, ctx))
         app.run_polling(
             stop_signals=[signal.SIGTERM, signal.SIGINT],
         )
