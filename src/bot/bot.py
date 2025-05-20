@@ -7,7 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast
 
-from opentelemetry import trace, context
+from opentelemetry import trace
 from telegram import Audio, Message, Update, User, VideoNote, Voice
 from telegram.constants import ChatType, FileSizeLimit, MessageLimit
 from telegram.ext import (
@@ -68,7 +68,6 @@ class Bot:
             Application.builder()
             .request(InstrumentedHttpxRequest(connection_pool_size=2))
             .token(self.config.telegram.token)
-            .post_init(__post_init)
             .build()
         )
 
