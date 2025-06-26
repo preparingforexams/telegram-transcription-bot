@@ -31,7 +31,7 @@ dependencies = [
 dev = [
     "mypy ==1.16.*",
     "pytest >=8, <9",
-    "ruff ==0.12.0",
+    "ruff ==0.12.1",
 ]
 
 [[tool.uv.index]]
