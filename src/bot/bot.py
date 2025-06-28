@@ -7,6 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast
 
+import telegram
 from bs_nats_updater import create_updater
 from opentelemetry import trace
 from telegram import Audio, Message, Update, User, VideoNote, Voice
@@ -65,11 +66,12 @@ class Bot:
         self.usage_tracker = UsageTracker(config.database, config.rate_limit)
 
     def run(self) -> None:
+        bot = telegram.Bot(
+            token=self.config.telegram.token,
+            request=InstrumentedHttpxRequest(connection_pool_size=2),
+        )
         app = (
-            Application.builder()
-            .request(InstrumentedHttpxRequest(connection_pool_size=2))
-            .updater(create_updater(self.config.telegram.token, self.config.nats))
-            .build()
+            Application.builder().updater(create_updater(bot, self.config.nats)).build()
         )
 
         app.add_handler(
