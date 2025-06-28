@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Self
 
 from bs_config import Env
+from bs_nats_updater import NatsConfig
 
 
 @dataclass
@@ -80,6 +81,7 @@ class Config:
     azure_tts: AzureTtsConfig
     database: DatabaseConfig
     enable_telemetry: bool
+    nats: NatsConfig
     rate_limit: RateLimitConfig
     scratch_dir: Path | None
     sentry: SentryConfig | None
@@ -97,6 +99,7 @@ class Config:
             azure_tts=AzureTtsConfig.from_env(env.scoped("AZURE_")),
             database=DatabaseConfig.from_env(env.scoped("DB_")),
             enable_telemetry=env.get_bool("ENABLE_TELEMETRY", default=False),
+            nats=NatsConfig.from_env(env.scoped("NATS_")),
             rate_limit=RateLimitConfig.from_env(env.scoped("RATE_LIMIT_")),
             scratch_dir=scratch_dir,
             sentry=SentryConfig.from_env(env),
