@@ -46,6 +46,7 @@ async def telegram_span(*, update: Update, name: str) -> AsyncIterator[trace.Spa
 
         if chat := update.effective_chat:
             span.set_attribute("telegram.chat_id", chat.id)
+            span.set_attribute("telegram.chat_type", chat.type)
             if chat_name := chat.effective_name:
                 span.set_attribute("telegram.chat_name", chat_name)
 
