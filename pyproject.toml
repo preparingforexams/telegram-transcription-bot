@@ -12,7 +12,7 @@ classifiers = [
 dependencies = [
     "azure-core ==1.35.*",
     "azure-core-tracing-opentelemetry",
-    "azure-cognitiveservices-speech ==1.44.*",
+    "azure-cognitiveservices-speech ==1.45.*",
     "bs-config [dotenv] ==1.1.1",
     "bs-nats-updater ==2.0.4",
     "click >=8, <9",
