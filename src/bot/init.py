@@ -5,7 +5,7 @@ from bs_config import Env
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
 from bot.config import Config, SentryConfig
-from bot.tracing import setup_tracing
+from bot.telemetry import setup_tracing
 
 _LOG = logging.getLogger(__name__)
 

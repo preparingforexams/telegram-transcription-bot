@@ -24,7 +24,7 @@ from bot.config import Config
 from bot.conversion import AudioConverter
 from bot.localization import find_locale, locale_by_language
 from bot.speech import Transcriber
-from bot.tracing import InstrumentedHttpxRequest
+from bot.telemetry import InstrumentedHttpxRequest
 from bot.usage import UsageTracker
 
 _LOG = logging.getLogger(__name__)
