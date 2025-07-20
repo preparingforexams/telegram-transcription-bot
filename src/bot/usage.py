@@ -1,10 +1,10 @@
 import asyncio
 import logging
-from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
+from typing import Self
 
-from opentelemetry import context, trace
-from rate_limiter import RateLimiter, RateLimitingPolicy, Usage
+from opentelemetry import trace
+from rate_limiter import RateLimiter, RateLimitingPolicy, RateLimitingRepo, Usage
 from rate_limiter.policy import DailyLimitRateLimitingPolicy
 from rate_limiter.repo import PostgresRateLimitingRepo
 from telegram import Message
@@ -23,7 +23,7 @@ class _UseOncePolicy(RateLimitingPolicy):
     def requested_history(self) -> int:
         return 1
 
-    def get_offending_usage(
+    async def get_offending_usage(
         self, *, at_time: datetime, last_usages: list[Usage]
     ) -> Usage | None:
         if last_usages:
@@ -34,17 +34,11 @@ class _UseOncePolicy(RateLimitingPolicy):
 
 class UsageTracker:
     def __init__(
-        self, db_config: DatabaseConfig, limit_config: RateLimitConfig
+        self,
+        repo: RateLimitingRepo,
+        limit_config: RateLimitConfig,
     ) -> None:
         self._last_cleanup: datetime | None = None
-        repo = PostgresRateLimitingRepo.connect(
-            host=db_config.db_host,
-            database=db_config.db_name,
-            username=db_config.db_user,
-            password=db_config.db_password,
-            min_connections=1,
-            max_connections=4,
-        )
         self._default_rate_limiter = RateLimiter(
             policy=DailyLimitRateLimitingPolicy(limit=limit_config.daily),
             repo=repo,
@@ -57,18 +51,21 @@ class UsageTracker:
             timezone=UTC,
         )
 
-    @staticmethod
-    async def _run_in_loop[R](func: Callable[[], R]) -> R:
-        loop = asyncio.get_running_loop()
-        ctx = context.get_current()
+    @classmethod
+    async def create(
+        cls, db_config: DatabaseConfig, limit_config: RateLimitConfig
+    ) -> Self:
+        repo = await PostgresRateLimitingRepo.connect(
+            host=db_config.db_host,
+            database=db_config.db_name,
+            username=db_config.db_user,
+            password=db_config.db_password,
+            min_connections=1,
+            max_connections=4,
+        )
+        return cls(repo, limit_config)
 
-        def __run() -> R:
-            context.attach(ctx)
-            return func()
-
-        return await loop.run_in_executor(None, __run)
-
-    def _get_conflict(
+    async def get_conflict(
         self,
         *,
         user_id: int,
@@ -76,7 +73,7 @@ class UsageTracker:
         unique_file_id: str,
         locale: str | None,
     ) -> Usage | None:
-        if usage := self._default_rate_limiter.get_offending_usage(
+        if usage := await self._default_rate_limiter.get_offending_usage(
             context_id="",
             user_id=user_id,
             at_time=at_time,
@@ -86,7 +83,7 @@ class UsageTracker:
         if locale is None:
             return None
 
-        return self._relocalize_rate_limiter.get_offending_usage(
+        return await self._relocalize_rate_limiter.get_offending_usage(
             context_id=f"relocalize-{unique_file_id}-{locale}",
             user_id=user_id,
             at_time=at_time,
@@ -100,49 +97,7 @@ class UsageTracker:
 
         _LOG.info("Triggering rate limiter housekeeping")
         self._last_cleanup = now
-        await self._run_in_loop(self._default_rate_limiter.do_housekeeping)
-
-    async def get_conflict(
-        self,
-        *,
-        user_id: int,
-        at_time: datetime,
-        unique_file_id: str,
-        locale: str | None,
-    ) -> Usage | None:
-        return await self._run_in_loop(
-            lambda: self._get_conflict(
-                user_id=user_id,
-                at_time=at_time,
-                unique_file_id=unique_file_id,
-                locale=locale,
-            ),
-        )
-
-    def _track(
-        self,
-        request: Message,
-        *,
-        unique_file_id: str,
-        response_id: int | None,
-        locale: str | None,
-    ) -> None:
-        if locale is None:
-            self._default_rate_limiter.add_usage(
-                time=request.date,
-                context_id="",
-                user_id=request.from_user.id,  # type: ignore[union-attr]
-                response_id=str(response_id),
-                reference_id=unique_file_id,
-            )
-        else:
-            self._relocalize_rate_limiter.add_usage(
-                time=request.date,
-                context_id=f"relocalize-{unique_file_id}-{locale}",
-                user_id=request.from_user.id,  # type: ignore[union-attr]
-                response_id=str(response_id),
-                reference_id=unique_file_id,
-            )
+        await self._default_rate_limiter.do_housekeeping()
 
     async def track(
         self,
@@ -152,18 +107,26 @@ class UsageTracker:
         response_id: int | None,
         locale: str | None,
     ) -> None:
-        cleanup = self._cleanup()
+        cleanup = asyncio.create_task(self._cleanup())
 
-        track = self._run_in_loop(
-            lambda: self._track(
-                request=request,
-                unique_file_id=unique_file_id,
-                response_id=response_id,
-                locale=locale,
-            ),
-        )
+        if locale is None:
+            await self._default_rate_limiter.add_usage(
+                time=request.date,
+                context_id="",
+                user_id=request.from_user.id,  # type: ignore[union-attr]
+                response_id=str(response_id),
+                reference_id=unique_file_id,
+            )
+        else:
+            await self._relocalize_rate_limiter.add_usage(
+                time=request.date,
+                context_id=f"relocalize-{unique_file_id}-{locale}",
+                user_id=request.from_user.id,  # type: ignore[union-attr]
+                response_id=str(response_id),
+                reference_id=unique_file_id,
+            )
 
-        await asyncio.gather(cleanup, track)
+        await cleanup
 
-    def close(self) -> None:
-        self._default_rate_limiter.close()
+    async def close(self) -> None:
+        await self._default_rate_limiter.close()

@@ -64,7 +64,16 @@ class Bot:
         self.config = config
         self.converter = AudioConverter()
         self.transcriber = Transcriber(config.azure_tts)
-        self.usage_tracker = UsageTracker(config.database, config.rate_limit)
+        self.usage_tracker: UsageTracker = None  # type: ignore
+
+    async def _init(self, _: Any) -> None:
+        config = self.config
+        self.usage_tracker = await UsageTracker.create(
+            config.database, config.rate_limit
+        )
+
+    async def _shutdown(self, _: Any) -> None:
+        await self.usage_tracker.close()
 
     def run(self) -> None:
         bot = telegram.Bot(
@@ -72,7 +81,11 @@ class Bot:
             request=InstrumentedHttpxRequest(connection_pool_size=2),
         )
         app = (
-            Application.builder().updater(create_updater(bot, self.config.nats)).build()
+            Application.builder()
+            .updater(create_updater(bot, self.config.nats))
+            .post_init(self._init)
+            .post_shutdown(self._shutdown)
+            .build()
         )
 
         app.add_handler(
@@ -96,8 +109,7 @@ class Bot:
             stop_signals=[signal.SIGTERM, signal.SIGINT],
         )
 
-        _LOG.info("Telegram application has shut down. Cleaning up...")
-        self.usage_tracker.close()
+        _LOG.info("Telegram application has shut down.")
 
     @staticmethod
     def _easter_eggs(s: str) -> str:
