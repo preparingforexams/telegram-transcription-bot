@@ -9,9 +9,11 @@ from typing import Any, cast
 
 import telegram
 from bs_nats_updater import create_updater
+from bs_state import StateStorage
+from bs_state.implementation import redis_storage
 from opentelemetry import trace
-from telegram import Audio, Message, Update, User, VideoNote, Voice
-from telegram.constants import ChatType, FileSizeLimit, MessageLimit
+from telegram import Audio, Chat, Message, Update, User, VideoNote, Voice
+from telegram.constants import ChatType, FileSizeLimit, MessageLimit, ParseMode
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -24,6 +26,7 @@ from bot.config import Config
 from bot.conversion import AudioConverter
 from bot.localization import find_locale, locale_by_language
 from bot.speech import Transcriber
+from bot.state import GreenlistState
 from bot.telemetry import InstrumentedHttpxRequest
 from bot.usage import UsageTracker
 
@@ -63,16 +66,26 @@ class Bot:
     def __init__(self, config: Config):
         self.config = config
         self.converter = AudioConverter()
+        self.state_storage: StateStorage[GreenlistState] = None  # type: ignore
         self.transcriber = Transcriber(config.azure_tts)
         self.usage_tracker: UsageTracker = None  # type: ignore
 
     async def _init(self, _: Any) -> None:
         config = self.config
+        redis = config.redis
+        self.state_storage = await redis_storage.load(
+            initial_state=GreenlistState.initial_state(),
+            host=redis.host,
+            username=redis.username,
+            password=redis.password,
+            key=f"{redis.username}:greenlist",
+        )
         self.usage_tracker = await UsageTracker.create(
             config.database, config.rate_limit
         )
 
     async def _shutdown(self, _: Any) -> None:
+        await self.state_storage.close()
         await self.usage_tracker.close()
 
     def run(self) -> None:
@@ -101,6 +114,22 @@ class Bot:
                 command="retry",
                 has_args=1,
                 callback=self._relocalize,
+                filters=~filters.UpdateType.EDITED,
+            )
+        )
+
+        app.add_handler(
+            CommandHandler(
+                command="allow",
+                callback=self._allow_chat,
+                filters=~filters.UpdateType.EDITED,
+            )
+        )
+        app.add_handler(
+            CommandHandler(
+                command="deny",
+                has_args=1,
+                callback=self._deny_chat,
                 filters=~filters.UpdateType.EDITED,
             )
         )
@@ -184,6 +213,42 @@ class Bot:
 
             await self._process_message(message, file, update_id=update_id, locale=None)
 
+    @tracer.start_as_current_span("check_greenlist")
+    async def _check_greenlist(self, chat: Chat) -> bool:
+        state = await self.state_storage.load()
+        chat_id = chat.id
+        if chat_id in state.allowed_chat_ids:
+            return True
+
+        if chat_id not in state.informed_chats:
+            if chat_id == -1001459502925:
+                await chat.send_message(
+                    "Achtung: Dieser Bot wird von einer Privatperson betrieben. Da die Kosten"
+                    " für den Betrieb in letzter Zeit immer weiter gestiegen sind, wird er ab"
+                    " sofort nur noch in ausgewählten Chats funktionieren. Cheers 🍻⚜️"
+                )
+            elif chat_id == -1001255002548:
+                await chat.send_message(
+                    "Achtung: Dieser Bot wird von einer Privatperson betrieben. Da die Kosten"
+                    " für den Betrieb in letzter Zeit immer weiter gestiegen sind, wird er ab"
+                    " sofort nur noch in ausgewählten Chats funktionieren. Cheers 🍻"
+                )
+            else:
+                await chat.send_message(
+                    (
+                        "Entschuldige, aber dieser Chat ist nicht für die Verwendung dieses Bots"
+                        " freigeschaltet. Zum Freischalten kannst du die Chat ID"
+                        " <code>{chat_id}</code> an Björn schicken."
+                        " Du weißt nicht wer das ist? Das ist schade."
+                    ),
+                    parse_mode=ParseMode.HTML,
+                )
+            state.informed_chat(chat_id)
+            await self.state_storage.store(state)
+
+        return False
+
+    @tracer.start_as_current_span("process_message")
     async def _process_message(
         self,
         message: Message,
@@ -192,108 +257,110 @@ class Bot:
         update_id: int,
         locale: str | None,
     ) -> None:
-        with tracer.start_as_current_span("process_message"):
-            file_size = int(file.file_size or 0)
-            if file_size > FileSizeLimit.FILESIZE_DOWNLOAD:
-                _LOG.info("[%s] File size exceeds limit", update_id)
-                await message.reply_text(
-                    disable_notification=True,
-                    text="Sorry, ich bearbeite nur Dateien bis zu 20 MB",
-                )
+        if not await self._check_greenlist(message.chat):
+            return
+
+        file_size = int(file.file_size or 0)
+        if file_size > FileSizeLimit.FILESIZE_DOWNLOAD:
+            _LOG.info("[%s] File size exceeds limit", update_id)
+            await message.reply_text(
+                disable_notification=True,
+                text="Sorry, ich bearbeite nur Dateien bis zu 20 MB",
+            )
+            return
+
+        user_id = cast(User, message.from_user).id
+        if await self.usage_tracker.get_conflict(
+            user_id=user_id,
+            at_time=message.date,
+            unique_file_id=file.file_unique_id,
+            locale=locale,
+        ):
+            _LOG.info(
+                "[%s] User %d has exceeded rate limit",
+                update_id,
+                user_id,
+            )
+            if message.chat.type == ChatType.PRIVATE:
+                await message.reply_text("Sorry, du hast dein Limit erreicht.")
+            else:
+                await message.set_reaction("👎")
+            return
+
+        with TemporaryDirectory(dir=self.config.scratch_dir) as scratch_path:
+            scratch_dir = Path(scratch_path)
+
+            _LOG.debug("[%s] Downloading file", update_id)
+            original_audio_file = await self._download_file(file, scratch_dir)
+
+            _LOG.debug("[%s] Converting file", update_id)
+            converted_audio_file = await self.converter.convert_to_wave(
+                original_audio_file
+            )
+
+            _LOG.debug(
+                "[%s] Transcribing audio with locale %s",
+                update_id,
+                locale,
+            )
+            result = await self.transcriber.transcribe(
+                converted_audio_file, locale=locale
+            )
+
+            if not result:
+                _LOG.info("[%s] No transcription result", update_id)
+                if isinstance(file, Voice):
+                    await message.set_reaction(
+                        "🤷‍♂️",
+                        is_big=True,
+                    )
+                    await self.usage_tracker.track(
+                        message,
+                        response_id=None,
+                        unique_file_id=file.file_unique_id,
+                        locale=locale,
+                    )
                 return
 
-            user_id = cast(User, message.from_user).id
-            if await self.usage_tracker.get_conflict(
-                user_id=user_id,
-                at_time=message.date,
+            result = self._easter_eggs(result)
+
+            chunks = self._split_chunks(result)
+            _LOG.info(
+                "[%s] Sending message of length %d in %d chunks",
+                update_id,
+                len(result),
+                len(chunks),
+            )
+            first_response_message: Message | None = None
+            for chunk in chunks:
+                response_message = await message.reply_text(
+                    text=chunk,
+                    disable_notification=True,
+                )
+                if first_response_message is None:
+                    first_response_message = response_message
+            await self.usage_tracker.track(
+                message,
+                response_id=first_response_message.message_id,  # type: ignore[union-attr]
                 unique_file_id=file.file_unique_id,
                 locale=locale,
-            ):
-                _LOG.info(
-                    "[%s] User %d has exceeded rate limit",
-                    update_id,
-                    user_id,
-                )
-                if message.chat.type == ChatType.PRIVATE:
-                    await message.reply_text("Sorry, du hast dein Limit erreicht.")
-                else:
-                    await message.set_reaction("👎")
-                return
+            )
 
-            with TemporaryDirectory(dir=self.config.scratch_dir) as scratch_path:
-                scratch_dir = Path(scratch_path)
-
-                _LOG.debug("[%s] Downloading file", update_id)
-                original_audio_file = await self._download_file(file, scratch_dir)
-
-                _LOG.debug("[%s] Converting file", update_id)
-                converted_audio_file = await self.converter.convert_to_wave(
-                    original_audio_file
-                )
-
-                _LOG.debug(
-                    "[%s] Transcribing audio with locale %s",
-                    update_id,
-                    locale,
-                )
-                result = await self.transcriber.transcribe(
-                    converted_audio_file, locale=locale
-                )
-
-                if not result:
-                    _LOG.info("[%s] No transcription result", update_id)
-                    if isinstance(file, Voice):
-                        await message.set_reaction(
-                            "🤷‍♂️",
-                            is_big=True,
-                        )
-                        await self.usage_tracker.track(
-                            message,
-                            response_id=None,
-                            unique_file_id=file.file_unique_id,
-                            locale=locale,
-                        )
-                    return
-
-                result = self._easter_eggs(result)
-
-                chunks = self._split_chunks(result)
-                _LOG.info(
-                    "[%s] Sending message of length %d in %d chunks",
-                    update_id,
-                    len(result),
-                    len(chunks),
-                )
-                first_response_message: Message | None = None
-                for chunk in chunks:
-                    response_message = await message.reply_text(
-                        text=chunk,
-                        disable_notification=True,
-                    )
-                    if first_response_message is None:
-                        first_response_message = response_message
-                await self.usage_tracker.track(
-                    message,
-                    response_id=first_response_message.message_id,  # type: ignore[union-attr]
-                    unique_file_id=file.file_unique_id,
-                    locale=locale,
-                )
-
+    @tracer.start_as_current_span("download_file")
     async def _download_file(
         self,
         file: Voice | Audio | VideoNote,
         scratch_dir: Path,
     ) -> Path:
-        with tracer.start_as_current_span("download_file"):
-            prepared_file = await file.get_file()
+        prepared_file = await file.get_file()
 
-            path = prepared_file.file_path
-            if path:
-                file_name = path.rsplit("/", 1)[1]
-            else:
-                file_name = prepared_file.file_id
+        path = prepared_file.file_path
+        if path:
+            file_name = path.rsplit("/", 1)[1]
+        else:
+            file_name = prepared_file.file_id
 
-            return await prepared_file.download_to_drive(scratch_dir / file_name)
+        return await prepared_file.download_to_drive(scratch_dir / file_name)
 
     @staticmethod
     def _split_chunks(
@@ -323,3 +390,88 @@ class Bot:
             result = chunks
 
         return result
+
+    async def _allow_chat(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+    ) -> None:
+        async with telegram_span(update=update, name="allow_chat"):
+            if update.edited_message:
+                return
+
+            update_id = update.update_id
+            _LOG.info("[%s] Received command update", update_id)
+
+            message: Message = update.message  # type: ignore
+            admin_id = self.config.telegram.admin_id
+
+            from_user = message.from_user
+            if from_user is None:
+                _LOG.info("No from_user found.")
+                return
+
+            if from_user.id != admin_id:
+                _LOG.warning("Received admin command from non-admin")
+                await message.set_reaction("👎")
+                return
+
+            args = context.args
+            if args:
+                chat_id_arg: str = args[0]
+
+                try:
+                    target_chat_id = int(chat_id_arg.strip())
+                except ValueError:
+                    await message.reply_text("Invalid chat ID")
+                    return
+            elif message.chat.type == ChatType.PRIVATE:
+                await message.reply_text("Only works in groups or with arg")
+                return
+            else:
+                target_chat_id = message.chat.id
+
+            state_storage = self.state_storage
+            state = await state_storage.load()
+            state.allow(target_chat_id)
+            await state_storage.store(state)
+            await message.set_reaction("👍")
+
+    async def _deny_chat(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+    ) -> None:
+        async with telegram_span(update=update, name="deny_chat"):
+            if update.edited_message:
+                return
+
+            update_id = update.update_id
+            _LOG.info("[%s] Received command update", update_id)
+
+            message: Message = update.message  # type: ignore
+            admin_id = self.config.telegram.admin_id
+
+            from_user = message.from_user
+            if from_user is None:
+                _LOG.info("No from_user found.")
+                return
+
+            if from_user.id != admin_id:
+                _LOG.warning("Received admin command from non-admin")
+                await message.set_reaction("👎")
+                return
+
+            chat_id_arg: str = context.args[0]  # type: ignore
+
+            try:
+                target_chat_id = int(chat_id_arg.strip())
+            except ValueError:
+                await message.reply_text("Invalid chat ID")
+                return
+
+            state_storage = self.state_storage
+            state = await state_storage.load()
+            state.deny(target_chat_id)
+            await state_storage.store(state)
+            await message.set_reaction("👍")

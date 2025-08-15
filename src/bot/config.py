@@ -39,11 +39,13 @@ class AzureTtsConfig:
 
 @dataclass
 class TelegramConfig:
+    admin_id: int
     token: str
 
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
+            admin_id=env.get_int("ADMIN_ID", required=True, default=133399998),
             token=env.get_string("TOKEN", required=True),
         )
 
@@ -77,12 +79,28 @@ class RateLimitConfig:
 
 
 @dataclass
+class RedisStateConfig:
+    host: str
+    username: str
+    password: str
+
+    @classmethod
+    def from_env(cls, env: Env) -> Self:
+        return cls(
+            host=env.get_string("HOST", required=True),
+            username=env.get_string("USERNAME", required=True),
+            password=env.get_string("PASSWORD", required=True),
+        )
+
+
+@dataclass
 class Config:
     azure_tts: AzureTtsConfig
     database: DatabaseConfig
     enable_telemetry: bool
     nats: NatsConfig
     rate_limit: RateLimitConfig
+    redis: RedisStateConfig
     scratch_dir: Path | None
     sentry: SentryConfig | None
     telegram: TelegramConfig
@@ -101,6 +119,7 @@ class Config:
             enable_telemetry=env.get_bool("ENABLE_TELEMETRY", default=False),
             nats=NatsConfig.from_env(env.scoped("NATS_")),
             rate_limit=RateLimitConfig.from_env(env.scoped("RATE_LIMIT_")),
+            redis=RedisStateConfig.from_env(env.scoped("STATE_REDIS_")),
             scratch_dir=scratch_dir,
             sentry=SentryConfig.from_env(env),
             telegram=TelegramConfig.from_env(env.scoped("TELEGRAM_")),
