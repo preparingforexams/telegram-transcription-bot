@@ -15,6 +15,7 @@ dependencies = [
     "azure-cognitiveservices-speech ==1.45.*",
     "bs-config [dotenv] ==1.1.1",
     "bs-nats-updater ==2.0.5",
+    "bs-state [redis] ==2.2.*",
     "click >=8, <9",
     "opentelemetry-api ==1.36.*",
     "opentelemetry-sdk ==1.36.*",
@@ -43,6 +44,7 @@ explicit = true
 [tool.uv.sources]
 bs-config = { index = "internal" }
 bs-nats-updater = { index = "internal" }
+bs-state = { index = "internal" }
 prep-rate-limiter = { index = "internal" }
 
 [build-system]

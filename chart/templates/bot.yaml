@@ -68,6 +68,22 @@ spec:
           env:
             - name: SCRATCH_DIR
               value: /scratch
+            - name: STATE_KUBERNETES_NAME_PREFIX
+              value: {{ .Release.Name }}-state-
+            - name: STATE_KUBERNETES_NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: STATE_REDIS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: username
+            - name: STATE_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: password
+            - name: STATE_REDIS_HOST
+              value: "redis.prep-redis-state"
           volumeMounts:
             - mountPath: /scratch
               name: scratch
