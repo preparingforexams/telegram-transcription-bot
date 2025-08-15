@@ -238,7 +238,7 @@ class Bot:
                     (
                         "Entschuldige, aber dieser Chat ist nicht für die Verwendung dieses Bots"
                         " freigeschaltet. Zum Freischalten kannst du die Chat ID"
-                        " <code>{chat_id}</code> an Björn schicken."
+                        f" <code>{chat_id}</code> an Björn schicken."
                         " Du weißt nicht wer das ist? Das ist schade."
                     ),
                     parse_mode=ParseMode.HTML,
