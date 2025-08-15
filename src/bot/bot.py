@@ -221,6 +221,7 @@ class Bot:
             return True
 
         if chat_id not in state.informed_chats:
+            _LOG.info("Informing chat of greenlist approach")
             if chat_id == -1001459502925:
                 await chat.send_message(
                     "Achtung: Dieser Bot wird von einer Privatperson betrieben. Da die Kosten"
@@ -258,6 +259,7 @@ class Bot:
         locale: str | None,
     ) -> None:
         if not await self._check_greenlist(message.chat):
+            _LOG.info("Skipping message because chat is not allowed")
             return
 
         file_size = int(file.file_size or 0)
