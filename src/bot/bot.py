@@ -5,11 +5,10 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import telegram
 from bs_nats_updater import create_updater
-from bs_state import StateStorage
 from bs_state.implementation import redis_storage
 from opentelemetry import trace
 from telegram import Audio, Chat, Message, Update, User, VideoNote, Voice
@@ -29,6 +28,9 @@ from bot.speech import Transcriber
 from bot.state import GreenlistState
 from bot.telemetry import InstrumentedHttpxRequest
 from bot.usage import UsageTracker
+
+if TYPE_CHECKING:
+    from bs_state import StateStorage
 
 _LOG = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
