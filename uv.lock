@@ -26,19 +26,19 @@ wheels = [
 
 [[package]]
 name = "azure-cognitiveservices-speech"
-version = "1.45.0"
+version = "1.46.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "azure-core" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/ff/ea861803fb4ac6e407d46f36f30c8f63c9214c6a72d66b62348a296a49a6/azure_cognitiveservices_speech-1.45.0-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:09466a0f7c63652d1efde24acb9b5d8a500e880c2c22505984d53fec3ec705e4", size = 7489416, upload-time = "2025-07-10T22:24:14.807Z" },
-    { url = "https://files.pythonhosted.org/packages/19/d3/648d2d4e5033d6e84651248fa6ec06991a0e04e0e5e1f414b04c2a5e1eb9/azure_cognitiveservices_speech-1.45.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:940cf5f815231536b19911bc361ff363a1494ba696257d076726f4288547ff14", size = 7342303, upload-time = "2025-07-10T22:24:17.121Z" },
-    { url = "https://files.pythonhosted.org/packages/a6/36/623ffc42992f5fd886f189d5778ee4544711a92d9b5e6f64e0a61e6514dd/azure_cognitiveservices_speech-1.45.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:317fc21f0fff3bbb8eb35d8db48669cd983a75c40740c60babe2c6476087e638", size = 41928888, upload-time = "2025-07-10T22:24:19.403Z" },
-    { url = "https://files.pythonhosted.org/packages/b1/7c/b0d430b106b05087be1df6d93f461d225ecc549e287e09a7005d4dca43ac/azure_cognitiveservices_speech-1.45.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:1f08f549d92ccb548df5b72049f973075ad2f6c3377a23d180921967af6496d5", size = 41709489, upload-time = "2025-07-10T22:24:22.642Z" },
-    { url = "https://files.pythonhosted.org/packages/7a/74/09e1cba9c8d3ec6820ccd5a1a0fe5e9b760f3a6e8ed32c3fe007cee92461/azure_cognitiveservices_speech-1.45.0-py3-none-win32.whl", hash = "sha256:9129845b18f24f446023762db73a03c5b53e47999a08c5744b108d07e2ecbe49", size = 2168530, upload-time = "2025-07-10T22:24:25.244Z" },
-    { url = "https://files.pythonhosted.org/packages/1c/10/ea33ba7079b018370c2604a857251a92da61042355bbb65b045e36860faf/azure_cognitiveservices_speech-1.45.0-py3-none-win_amd64.whl", hash = "sha256:eca91493183134fa6e54070e9ae96849732aaae0c651de955c190ab9643d3bbc", size = 2428705, upload-time = "2025-07-10T22:24:26.45Z" },
-    { url = "https://files.pythonhosted.org/packages/a8/26/9f0983fab26dc15d347eed7ca0700f905fa6a0bb6591702f6c99281ede2e/azure_cognitiveservices_speech-1.45.0-py3-none-win_arm64.whl", hash = "sha256:66d35847669313c9deeb09070c24e92f8e8cb06a8f792e5f6a5e75a4110cf71e", size = 2221054, upload-time = "2025-07-10T22:24:28.019Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/e5/3bf6ec4b8cf4b394322d0ec3021573f8a92b1db8d30d8a6b1c3f5430a6bd/azure_cognitiveservices_speech-1.46.0-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:d06a173864e1990d6d54fe6f97bae72aa32fe39ab61b76e0dd4e6e5a9d573fee", size = 7489586, upload-time = "2025-09-11T13:58:28.292Z" },
+    { url = "https://files.pythonhosted.org/packages/23/f4/7882e3551d19e4a3fe451623c9c8c2eba48f1324d10dc7adf290c278ee75/azure_cognitiveservices_speech-1.46.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:dae2170efbfa8733e606466ea83a8fc768ad5555568559e9d4ffcbe662cbb3eb", size = 7344665, upload-time = "2025-09-11T13:58:30.179Z" },
+    { url = "https://files.pythonhosted.org/packages/96/0f/3c35b84688b34adc5b8d6a185818e4835418ccc3b9d8c05ef8b862a2a20d/azure_cognitiveservices_speech-1.46.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:2e6d799fa906e37a4b80d274d029ee854cab98f8eb9924a536376deac4d15bb8", size = 41419814, upload-time = "2025-09-11T13:58:32.957Z" },
+    { url = "https://files.pythonhosted.org/packages/ec/d4/8129dba2c302394b4cb40fadfd72a10754b384ccc2fd05ff01779551e221/azure_cognitiveservices_speech-1.46.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:6d61bf5c2e716ee40e75b4b02e6893c99f3b281a84619f8c5e11bb10ee827ba5", size = 41186699, upload-time = "2025-09-11T13:58:36.463Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/0b/ff649793d529eb10677bcebd48edbb97e6b905b0a419cf91f1bf45490d21/azure_cognitiveservices_speech-1.46.0-py3-none-win32.whl", hash = "sha256:264bb9e00dca5178e92313c0fcf2e827e6f3b99b980b5935cc55251845824eb4", size = 2169769, upload-time = "2025-09-11T13:58:38.829Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/bc/382675b8cc2e2385f257a492cde6624d6fab857da8ab65b332eceed35a94/azure_cognitiveservices_speech-1.46.0-py3-none-win_amd64.whl", hash = "sha256:3fe2a6e0354b7b524378a9f2a4260e1b423a78038d79c3f5a490247217417a30", size = 2431918, upload-time = "2025-09-11T13:58:40.632Z" },
+    { url = "https://files.pythonhosted.org/packages/be/88/a68573ca0cc7356f63497cc4e11e32668879c8858bef8dd00b80b34d2622/azure_cognitiveservices_speech-1.46.0-py3-none-win_arm64.whl", hash = "sha256:398195492f9327eb998e8b22ed500a0ab09acd5aa070be54b2795302acc22dc1", size = 2223614, upload-time = "2025-09-11T13:58:42.561Z" },
 ]
 
 [[package]]
@@ -101,7 +101,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "azure-cognitiveservices-speech", specifier = "==1.45.*" },
+    { name = "azure-cognitiveservices-speech", specifier = "==1.46.*" },
     { name = "azure-core", specifier = "==1.35.*" },
     { name = "azure-core-tracing-opentelemetry" },
     { name = "bs-config", extras = ["dotenv"], specifier = "==1.1.1", index = "https://pypi.bjoernpetersen.net/simple" },
