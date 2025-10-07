@@ -17,6 +17,10 @@ locale_by_language = {
     "fr": "fr-FR",
     "🇫🇷": "fr-FR",
     "🥖": "fr-FR",
+    "it": "it-IT",
+    "🇮🇹": "it-IT",
+    "🍝": "it-IT",
+    "🍕": "it-IT",
 }
 
 
