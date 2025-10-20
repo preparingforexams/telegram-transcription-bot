@@ -224,28 +224,15 @@ class Bot:
 
         if chat_id not in state.informed_chats:
             _LOG.info("Informing chat of greenlist approach")
-            if chat_id == -1001459502925:
-                await chat.send_message(
-                    "Achtung: Dieser Bot wird von einer Privatperson betrieben. Da die Kosten"
-                    " für den Betrieb in letzter Zeit immer weiter gestiegen sind, wird er ab"
-                    " sofort nur noch in ausgewählten Chats funktionieren. Cheers 🍻⚜️"
-                )
-            elif chat_id == -1001255002548:
-                await chat.send_message(
-                    "Achtung: Dieser Bot wird von einer Privatperson betrieben. Da die Kosten"
-                    " für den Betrieb in letzter Zeit immer weiter gestiegen sind, wird er ab"
-                    " sofort nur noch in ausgewählten Chats funktionieren. Cheers 🍻"
-                )
-            else:
-                await chat.send_message(
-                    (
-                        "Entschuldige, aber dieser Chat ist nicht für die Verwendung dieses Bots"
-                        " freigeschaltet. Zum Freischalten kannst du die Chat ID"
-                        f" <code>{chat_id}</code> an Björn schicken."
-                        " Du weißt nicht wer das ist? Das ist schade."
-                    ),
-                    parse_mode=ParseMode.HTML,
-                )
+            await chat.send_message(
+                (
+                    "Entschuldige, aber dieser Chat ist nicht für die Nutzung dieses Bots"
+                    " freigeschaltet. Zum Freischalten kannst du die Chat-ID"
+                    f" <code>{chat_id}</code> an Björn schicken."
+                    " Du weißt nicht, wer das ist? Schade."
+                ),
+                parse_mode=ParseMode.HTML,
+            )
             state.informed_chat(chat_id)
             await self.state_storage.store(state)
 
