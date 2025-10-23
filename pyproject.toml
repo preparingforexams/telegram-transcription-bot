@@ -14,7 +14,7 @@ dependencies = [
     "azure-core-tracing-opentelemetry",
     "azure-cognitiveservices-speech ==1.46.*",
     "bs-config [dotenv] ==1.2.0",
-    "bs-nats-updater ==2.1.0",
+    "bs-nats-updater ==2.1.2",
     "bs-state [redis] ==2.3.*",
     "click >=8, <9",
     "opentelemetry-api ==1.38.*",
