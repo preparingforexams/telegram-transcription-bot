@@ -6,4 +6,4 @@ data:
   AZURE_SDK_TRACING_IMPLEMENTATION: "opentelemetry"
   ENABLE_TELEMETRY: "true"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://collector.opentelemetry-system:4317"
-  RATE_LIMIT_DAILY: "1000"
+  RATE_LIMIT__DAILY: "1000"

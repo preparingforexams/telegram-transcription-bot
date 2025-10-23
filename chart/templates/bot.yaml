@@ -50,11 +50,11 @@ spec:
                 name: db-config
           env:
             - name: FLYWAY_URL
-              value: jdbc:postgresql://$(DB_HOST):5432/$(DB_NAME)
+              value: jdbc:postgresql://$(DB__HOST):5432/$(DB__NAME)
             - name: FLYWAY_USER
-              value: $(DB_USER)
+              value: $(DB__USER)
             - name: FLYWAY_PASSWORD
-              value: $(DB_PASSWORD)
+              value: $(DB__PASSWORD)
       containers:
         - name: app
           image: {{ .Values.image.app }}:{{ .Values.appVersion }}
@@ -68,21 +68,17 @@ spec:
           env:
             - name: SCRATCH_DIR
               value: /scratch
-            - name: STATE_KUBERNETES_NAME_PREFIX
-              value: {{ .Release.Name }}-state-
-            - name: STATE_KUBERNETES_NAMESPACE
-              value: {{ .Release.Namespace }}
-            - name: STATE_REDIS_USERNAME
+            - name: STATE__REDIS__USERNAME
               valueFrom:
                 secretKeyRef:
                   name: redis-credentials
                   key: username
-            - name: STATE_REDIS_PASSWORD
+            - name: STATE__REDIS__PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: redis-credentials
                   key: password
-            - name: STATE_REDIS_HOST
+            - name: STATE__REDIS__HOST
               value: "redis.prep-redis-state"
           volumeMounts:
             - mountPath: /scratch

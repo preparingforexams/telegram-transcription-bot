@@ -13,14 +13,14 @@ class SentryConfig:
 
     @classmethod
     def from_env(cls, env: Env) -> Self | None:
-        dsn = env.get_string("SENTRY_DSN")
+        dsn = env.get_string("sentry-dsn")
 
         if not dsn:
             return None
 
         return cls(
             dsn=dsn,
-            release=env.get_string("APP_VERSION", default="debug"),
+            release=env.get_string("app-version", default="debug"),
         )
 
 
@@ -32,8 +32,8 @@ class AzureTtsConfig:
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
-            region=env.get_string("SPEECH_REGION", default="westeurope"),
-            key=env.get_string("SPEECH_KEY", required=True),
+            region=env.get_string("speech-region", default="westeurope"),
+            key=env.get_string("speech-key", required=True),
         )
 
 
@@ -45,8 +45,8 @@ class TelegramConfig:
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
-            admin_id=env.get_int("ADMIN_ID", required=True, default=133399998),
-            token=env.get_string("TOKEN", required=True),
+            admin_id=env.get_int("admin-id", required=True, default=133399998),
+            token=env.get_string("token", required=True),
         )
 
 
@@ -60,10 +60,10 @@ class DatabaseConfig:
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
-            db_host=env.get_string("HOST", required=True),
-            db_name=env.get_string("NAME", required=True),
-            db_user=env.get_string("USER", required=True),
-            db_password=env.get_string("PASSWORD", required=True),
+            db_host=env.get_string("host", required=True),
+            db_name=env.get_string("name", required=True),
+            db_user=env.get_string("user", required=True),
+            db_password=env.get_string("password", required=True),
         )
 
 
@@ -74,7 +74,7 @@ class RateLimitConfig:
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
-            daily=env.get_int("DAILY", default=10),
+            daily=env.get_int("daily", default=10),
         )
 
 
@@ -87,9 +87,9 @@ class RedisStateConfig:
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
-            host=env.get_string("HOST", required=True),
-            username=env.get_string("USERNAME", required=True),
-            password=env.get_string("PASSWORD", required=True),
+            host=env.get_string("host", required=True),
+            username=env.get_string("username", required=True),
+            password=env.get_string("password", required=True),
         )
 
 
@@ -107,20 +107,14 @@ class Config:
 
     @classmethod
     def from_env(cls, env: Env) -> Self:
-        scratch_path = env.get_string("SCRATCH_DIR")
-        if scratch_path is None:
-            scratch_dir = None
-        else:
-            scratch_dir = Path(scratch_path)
-
         return cls(
-            azure_tts=AzureTtsConfig.from_env(env.scoped("AZURE_")),
-            database=DatabaseConfig.from_env(env.scoped("DB_")),
-            enable_telemetry=env.get_bool("ENABLE_TELEMETRY", default=False),
-            nats=NatsConfig.from_env(env.scoped("NATS_")),
-            rate_limit=RateLimitConfig.from_env(env.scoped("RATE_LIMIT_")),
-            redis=RedisStateConfig.from_env(env.scoped("STATE_REDIS_")),
-            scratch_dir=scratch_dir,
+            azure_tts=AzureTtsConfig.from_env(env / "azure"),
+            database=DatabaseConfig.from_env(env / "db"),
+            enable_telemetry=env.get_bool("enable-telemetry", default=False),
+            nats=NatsConfig.from_env(env / "nats"),
+            rate_limit=RateLimitConfig.from_env(env / "rate-limit"),
+            redis=RedisStateConfig.from_env(env / "state" / "redis"),
+            scratch_dir=env.get_string("scratch-dir", transform=Path),
             sentry=SentryConfig.from_env(env),
-            telegram=TelegramConfig.from_env(env.scoped("TELEGRAM_")),
+            telegram=TelegramConfig.from_env(env / "telegram"),
         )
