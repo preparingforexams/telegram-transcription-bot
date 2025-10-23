@@ -103,7 +103,7 @@ requires-dist = [
     { name = "azure-cognitiveservices-speech", specifier = "==1.46.*" },
     { name = "azure-core", specifier = "==1.36.*" },
     { name = "azure-core-tracing-opentelemetry" },
-    { name = "bs-config", extras = ["dotenv"], specifier = "==1.2.0", index = "https://pypi.bjoernpetersen.net/simple" },
+    { name = "bs-config", extras = ["dotenv"], specifier = "==2.0.0", index = "https://pypi.bjoernpetersen.net/simple" },
     { name = "bs-nats-updater", specifier = "==2.1.2", index = "https://pypi.bjoernpetersen.net/simple" },
     { name = "bs-state", extras = ["redis"], specifier = "==2.3.*", index = "https://pypi.bjoernpetersen.net/simple" },
     { name = "click", specifier = ">=8,<9" },
@@ -128,11 +128,11 @@ dev = [
 
 [[package]]
 name = "bs-config"
-version = "1.2.0"
+version = "2.0.0"
 source = { registry = "https://pypi.bjoernpetersen.net/simple" }
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_config-1.2.0.tar.gz", hash = "sha256:1259c41b391cbf1765df845b049da4260160fad7f44a5153d370f9b7af629435" }
+sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_config-2.0.0.tar.gz", hash = "sha256:fde81ae46f64e25b2d14f7997a944818f5378fc0890a78714721ab7b4efd37ee" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/bs_config-1.2.0-py3-none-any.whl", hash = "sha256:3da3536b9b71462304437531230941104e6dd77ea0c386a171eb619a83418aa7" },
+    { url = "https://pypi.bjoernpetersen.net/packages/bs_config-2.0.0-py3-none-any.whl", hash = "sha256:dd439a70b29ce8814adc524a96df61d60545d64dca35af0b9633998fb466c5ad" },
 ]
 
 [package.optional-dependencies]
