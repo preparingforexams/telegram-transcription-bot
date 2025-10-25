@@ -13,7 +13,7 @@ dependencies = [
     "azure-core ==1.36.*",
     "azure-core-tracing-opentelemetry",
     "azure-cognitiveservices-speech ==1.46.*",
-    "bs-config [dotenv] ==3.0.0",
+    "bs-config [dotenv] ==3.1.0",
     "bs-nats-updater ==3.0.0",
     "bs-state [redis] ==2.3.*",
     "click >=8, <9",
