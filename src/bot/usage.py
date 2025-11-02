@@ -1,15 +1,17 @@
 import asyncio
 import logging
 from datetime import UTC, datetime, timedelta
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from opentelemetry import trace
 from rate_limiter import RateLimiter, RateLimitingPolicy, RateLimitingRepo, Usage
 from rate_limiter.policy import DailyLimitRateLimitingPolicy
 from rate_limiter.repo import PostgresRateLimitingRepo
-from telegram import Message
 
-from bot.config import DatabaseConfig, RateLimitConfig
+if TYPE_CHECKING:
+    from telegram import Message
+
+    from bot.config import DatabaseConfig, RateLimitConfig
 
 _LOG = logging.getLogger(__name__)
 _tracer = trace.get_tracer(__name__)

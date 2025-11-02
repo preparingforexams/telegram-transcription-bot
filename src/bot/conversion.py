@@ -1,8 +1,11 @@
 import asyncio
 import logging
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from opentelemetry import trace
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _LOG = logging.getLogger(__name__)
 _tracer = trace.get_tracer(__name__)

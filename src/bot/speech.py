@@ -1,13 +1,16 @@
 import asyncio
 import logging
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import azure.cognitiveservices.speech as speechsdk
 from opentelemetry import trace
 
-from bot.config import AzureTtsConfig
 from bot.localization import auto_detect_languages, locale_by_language
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from bot.config import AzureTtsConfig
 
 _LOG = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
