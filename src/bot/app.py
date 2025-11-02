@@ -1,11 +1,14 @@
 import asyncio
+from typing import TYPE_CHECKING
 
 import click
 import uvloop
 
 from bot.bot import Bot
-from bot.config import Config
 from bot.init import initialize
+
+if TYPE_CHECKING:
+    from bot.config import Config
 
 
 @click.group

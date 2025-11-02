@@ -1,7 +1,6 @@
 import logging
 import re
 import signal
-from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -21,7 +20,6 @@ from telegram.ext import (
     filters,
 )
 
-from bot.config import Config
 from bot.conversion import AudioConverter
 from bot.localization import find_locale, locale_by_language
 from bot.speech import Transcriber
@@ -30,7 +28,11 @@ from bot.telemetry import InstrumentedHttpxRequest
 from bot.usage import UsageTracker
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
     from bs_state import StateStorage
+
+    from bot.config import Config
 
 _LOG = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
