@@ -62,12 +62,14 @@ check_untyped_defs = true
 disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
-module = "google.cloud.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = "azure.*"
 ignore_missing_imports = true
+
+[tool.pytest]
+strict = true
+addopts = [
+    "--import-mode=importlib",
+]
 
 [tool.ruff.lint]
 select = [
