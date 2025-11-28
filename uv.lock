@@ -112,7 +112,7 @@ requires-dist = [
     { name = "opentelemetry-instrumentation-httpx" },
     { name = "opentelemetry-instrumentation-logging" },
     { name = "opentelemetry-sdk", specifier = "==1.38.*" },
-    { name = "prep-rate-limiter", extras = ["postgres", "opentelemetry-postgres"], specifier = "==8.1.4", index = "https://pypi.bjoernpetersen.net/simple" },
+    { name = "prep-rate-limiter", extras = ["postgres", "opentelemetry-postgres"], specifier = "==8.1.5", index = "https://pypi.bjoernpetersen.net/simple" },
     { name = "python-telegram-bot", specifier = "==22.5" },
     { name = "sentry-sdk", specifier = ">=2,<3" },
     { name = "uvloop", specifier = "==0.22.*" },
@@ -620,15 +620,15 @@ wheels = [
 
 [[package]]
 name = "prep-rate-limiter"
-version = "8.1.4"
+version = "8.1.5"
 source = { registry = "https://pypi.bjoernpetersen.net/simple" }
 dependencies = [
     { name = "opentelemetry-api" },
     { name = "tzdata" },
 ]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-8.1.4.tar.gz", hash = "sha256:9450078618f7ee80f87c2db7ee506e00750633ef18142706343a950a1fb0c62a" }
+sdist = { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-8.1.5.tar.gz", hash = "sha256:89b8ab719f88ed55d6eeeb4995d92c6be075fa7627ea2653b1385e912db87968" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-8.1.4-py3-none-any.whl", hash = "sha256:91a0c5efffba38060af9d5f17c3f372badb293223b1f5d106e6b1c2c2b6b4c97" },
+    { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-8.1.5-py3-none-any.whl", hash = "sha256:68e7074238c2f21ccc80d70af53950e046d24bf0245952eb690e4f0f955e3f7e" },
 ]
 
 [package.optional-dependencies]
