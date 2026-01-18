@@ -8,5 +8,5 @@ postgres:
   namespace: born-postgres
 rateLimiter:
   # renovate: datasource=docker
-  image: code.bjoernpetersen.net/bjoernpetersen/bs-rate-limiter/migrations-postgres:9.0.0
+  image: code.bjoernpetersen.net/bjoernpetersen/bs-rate-limiter/migrations-postgres:v9.0.0
   dailyRateLimit: 100
