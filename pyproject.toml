@@ -13,9 +13,10 @@ dependencies = [
     "azure-core ==1.38.*",
     "azure-core-tracing-opentelemetry",
     "azure-cognitiveservices-speech ==1.47.*",
-    "bs-config [dotenv] ==3.4.0",
-    "bs-nats-updater ==3.0.0",
-    "bs-state [redis] ==3.0.*",
+    "bs-config [dotenv] ==4.0.0",
+    "bs-nats-updater ==4.0.0",
+    "bs-rate-limiter [postgres,opentelemetry-postgres] ==9.0.0",
+    "bs-state [redis] ==4.0.*",
     "click >=8, <9",
     "opentelemetry-api ==1.39.*",
     "opentelemetry-sdk ==1.39.*",
@@ -23,7 +24,6 @@ dependencies = [
     "opentelemetry-instrumentation-asyncio",
     "opentelemetry-instrumentation-httpx",
     "opentelemetry-instrumentation-logging",
-    "prep-rate-limiter [postgres,opentelemetry-postgres] ==8.1.8",
     "python-telegram-bot ==22.5",
     "sentry-sdk >=2, <3",
     "uvloop ==0.22.*",
@@ -38,14 +38,14 @@ dev = [
 
 [[tool.uv.index]]
 name = "internal"
-url = "https://pypi.bjoernpetersen.net/simple"
+url = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/simple"
 explicit = true
 
 [tool.uv.sources]
 bs-config = { index = "internal" }
 bs-nats-updater = { index = "internal" }
+bs-rate-limiter = { index = "internal" }
 bs-state = { index = "internal" }
-prep-rate-limiter = { index = "internal" }
 
 [build-system]
 requires = ["uv_build==0.9.*"]

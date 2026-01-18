@@ -75,6 +75,7 @@ dependencies = [
     { name = "azure-core-tracing-opentelemetry" },
     { name = "bs-config", extra = ["dotenv"] },
     { name = "bs-nats-updater" },
+    { name = "bs-rate-limiter", extra = ["opentelemetry-postgres", "postgres"] },
     { name = "bs-state", extra = ["redis"] },
     { name = "click" },
     { name = "opentelemetry-api" },
@@ -83,7 +84,6 @@ dependencies = [
     { name = "opentelemetry-instrumentation-httpx" },
     { name = "opentelemetry-instrumentation-logging" },
     { name = "opentelemetry-sdk" },
-    { name = "prep-rate-limiter", extra = ["opentelemetry-postgres", "postgres"] },
     { name = "python-telegram-bot" },
     { name = "sentry-sdk" },
     { name = "uvloop" },
@@ -101,9 +101,10 @@ requires-dist = [
     { name = "azure-cognitiveservices-speech", specifier = "==1.47.*" },
     { name = "azure-core", specifier = "==1.38.*" },
     { name = "azure-core-tracing-opentelemetry" },
-    { name = "bs-config", extras = ["dotenv"], specifier = "==3.4.0", index = "https://pypi.bjoernpetersen.net/simple" },
-    { name = "bs-nats-updater", specifier = "==3.0.0", index = "https://pypi.bjoernpetersen.net/simple" },
-    { name = "bs-state", extras = ["redis"], specifier = "==3.0.*", index = "https://pypi.bjoernpetersen.net/simple" },
+    { name = "bs-config", extras = ["dotenv"], specifier = "==4.0.0", index = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/simple" },
+    { name = "bs-nats-updater", specifier = "==4.0.0", index = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/simple" },
+    { name = "bs-rate-limiter", extras = ["postgres", "opentelemetry-postgres"], specifier = "==9.0.0", index = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/simple" },
+    { name = "bs-state", extras = ["redis"], specifier = "==4.0.*", index = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/simple" },
     { name = "click", specifier = ">=8,<9" },
     { name = "opentelemetry-api", specifier = "==1.39.*" },
     { name = "opentelemetry-exporter-otlp-proto-grpc", specifier = "==1.39.*" },
@@ -111,7 +112,6 @@ requires-dist = [
     { name = "opentelemetry-instrumentation-httpx" },
     { name = "opentelemetry-instrumentation-logging" },
     { name = "opentelemetry-sdk", specifier = "==1.39.*" },
-    { name = "prep-rate-limiter", extras = ["postgres", "opentelemetry-postgres"], specifier = "==8.1.8", index = "https://pypi.bjoernpetersen.net/simple" },
     { name = "python-telegram-bot", specifier = "==22.5" },
     { name = "sentry-sdk", specifier = ">=2,<3" },
     { name = "uvloop", specifier = "==0.22.*" },
@@ -126,11 +126,11 @@ dev = [
 
 [[package]]
 name = "bs-config"
-version = "3.4.0"
-source = { registry = "https://pypi.bjoernpetersen.net/simple" }
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_config-3.4.0.tar.gz", hash = "sha256:93b8a630f370be52e4b8106f1bcb0059857cdc43d43c6efed1a3f6d8f0699460" }
+version = "4.0.0"
+source = { registry = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/simple" }
+sdist = { url = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/files/bs-config/4.0.0/bs_config-4.0.0.tar.gz", hash = "sha256:bc7b2338b8a6a2d7701ed1eefd22fd79982be3173b759601c8fc99ea361ac807" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/bs_config-3.4.0-py3-none-any.whl", hash = "sha256:036c5e3b60bd4a6eac7e0e52045e63261a0734c3cab4043caeb44f73032dbe5f" },
+    { url = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/files/bs-config/4.0.0/bs_config-4.0.0-py3-none-any.whl", hash = "sha256:a1652749c1367045e4de0720f3fe084c8518d14c710861e593dd7b10ca3516e5" },
 ]
 
 [package.optional-dependencies]
@@ -140,30 +140,51 @@ dotenv = [
 
 [[package]]
 name = "bs-nats-updater"
-version = "3.0.0"
-source = { registry = "https://pypi.bjoernpetersen.net/simple" }
+version = "4.0.0"
+source = { registry = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/simple" }
 dependencies = [
     { name = "bs-config" },
     { name = "nats-py" },
     { name = "pydantic" },
     { name = "python-telegram-bot" },
 ]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_nats_updater-3.0.0.tar.gz", hash = "sha256:aa879b0f32981d8f94012a863c28b9e39d8fbccd99a272050d0dc61f40fc0fd5" }
+sdist = { url = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/files/bs-nats-updater/4.0.0/bs_nats_updater-4.0.0.tar.gz", hash = "sha256:a34f47e2e86a5b812098475b7438c8f19bf6e0d3b2997d4336ed139b6f0d82a7" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/bs_nats_updater-3.0.0-py3-none-any.whl", hash = "sha256:b9586cf6b1b3ce516251527ddcd2ac27dba0ea98191e0df21fbe383dcf60617c" },
+    { url = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/files/bs-nats-updater/4.0.0/bs_nats_updater-4.0.0-py3-none-any.whl", hash = "sha256:eb7996bdf8cc8884e8f76dac9c94a0cc4da4c8ea83f2b7d685cf44bd169f1e70" },
+]
+
+[[package]]
+name = "bs-rate-limiter"
+version = "9.0.0"
+source = { registry = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/simple" }
+dependencies = [
+    { name = "opentelemetry-api" },
+    { name = "tzdata" },
+]
+sdist = { url = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/files/bs-rate-limiter/9.0.0/bs_rate_limiter-9.0.0.tar.gz", hash = "sha256:d0adbd044b93778c2484069a68c0011b06f0efa9620d3743482508bb632c94d8" }
+wheels = [
+    { url = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/files/bs-rate-limiter/9.0.0/bs_rate_limiter-9.0.0-py3-none-any.whl", hash = "sha256:f17262611aaa79bf2de13c3c72fa7fcb89460b62c9dc924512bcf44a947ce0cf" },
+]
+
+[package.optional-dependencies]
+opentelemetry-postgres = [
+    { name = "opentelemetry-instrumentation-psycopg" },
+]
+postgres = [
+    { name = "psycopg", extra = ["binary", "pool"] },
 ]
 
 [[package]]
 name = "bs-state"
-version = "3.0.0"
-source = { registry = "https://pypi.bjoernpetersen.net/simple" }
+version = "4.0.0"
+source = { registry = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/simple" }
 dependencies = [
     { name = "opentelemetry-api" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_state-3.0.0.tar.gz", hash = "sha256:3e2ea1c43007f30ae277ab16ae1883c49d5e8578fbb7ee5f20ac61dafb9347ce" }
+sdist = { url = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/files/bs-state/4.0.0/bs_state-4.0.0.tar.gz", hash = "sha256:f294584c89d54d30471ec210ef6dbb60b26262483b1433ff21d27557a5a7e1a7" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/bs_state-3.0.0-py3-none-any.whl", hash = "sha256:d0086b8ad66ca8fb780991cb807c7889a2bb7895e3fc9e168e8bae8381d47139" },
+    { url = "https://code.bjoernpetersen.net/api/packages/BjoernPetersen/pypi/files/bs-state/4.0.0/bs_state-4.0.0-py3-none-any.whl", hash = "sha256:4c49aaa41d8518d3fa0447458584ed353975c96102cc99f4279745ebe90068d7" },
 ]
 
 [package.optional-dependencies]
@@ -646,27 +667,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3", size = 69412, upload-time = "2025-05-15T12:30:07.975Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746", size = 20538, upload-time = "2025-05-15T12:30:06.134Z" },
-]
-
-[[package]]
-name = "prep-rate-limiter"
-version = "8.1.8"
-source = { registry = "https://pypi.bjoernpetersen.net/simple" }
-dependencies = [
-    { name = "opentelemetry-api" },
-    { name = "tzdata" },
-]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-8.1.8.tar.gz", hash = "sha256:36dc7a935a06ca0443cefd23656b94b1604e427c1ec0e179779840f375ea4fc2" }
-wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/prep_rate_limiter-8.1.8-py3-none-any.whl", hash = "sha256:711f25b39df7984b06e707d6a3a5e985f479a61517337a5d230749c9a1f0855b" },
-]
-
-[package.optional-dependencies]
-opentelemetry-postgres = [
-    { name = "opentelemetry-instrumentation-psycopg" },
-]
-postgres = [
-    { name = "psycopg", extra = ["binary", "pool"] },
 ]
 
 [[package]]
